@@ -17,6 +17,12 @@ help:
 	@echo "  echo  - Print all variables of the makefile"
 	@echo "  build - Build the project"
 	@echo "  clean - Remove all build files"
+	@echo ""
+	@echo "Variables:"
+	@echo "  CC     - C Compiler (default: lcc)"
+	@echo "  CFLAGS - Flags to pass to the compiler"
+	@echo "  SOURCE - Source directory"
+	@echo "  BUILD  - Build directory"
 
 echo:
 	@echo "CC: ${CC}"
@@ -29,6 +35,7 @@ echo:
 build: ${bin}
 
 clean:
+	rm -f ${obj_c}
 
 
 ${bin}: ${obj_c}
