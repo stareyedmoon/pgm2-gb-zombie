@@ -1,5 +1,5 @@
 CC := lcc
-CFLAGS += -msm83:gb
+CFLAGS += -msm83:gb -Wa-l -Wf--opt-code-speed
 
 SOURCE := ./src
 BUILD := ./build

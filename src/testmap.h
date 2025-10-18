@@ -7,7 +7,7 @@
  Info:
    Section       : 
    Bank          : 0
-   Map size      : 32 x 24
+   Map size      : 40 x 24
    Tile set      : C:\Users\07alab19\Documents\programming\pgm2-gb-zombie\resrc\tiles.gbr
    Plane count   : 1 plane (8 bits)
    Plane order   : Tiles are continues
@@ -20,7 +20,7 @@
 #ifndef __testmap_h_INCLUDE
 #define __testmap_h_INCLUDE
 
-#define testmapWidth 32
+#define testmapWidth 40
 #define testmapHeight 24
 #define testmapBank 0
 
