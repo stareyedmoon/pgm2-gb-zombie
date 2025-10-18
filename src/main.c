@@ -53,41 +53,50 @@ void main(void) {
     SHOW_SPRITES;
     SHOW_BKG;
 
+
+    const unsigned char* map = testmap;
+    uint16_t map_width = testmapWidth;
+    uint16_t map_height = testmapHeight;
+
+
     set_sprite_data(TILE_PLAYER_DOWN, 6, test);
     
     uint8_t x = 10;
     uint8_t y = 8;
 
-    const uint8_t buffer_max_x = testmapWidth - BUFFER_WIDTH;
-    const uint8_t buffer_max_y = testmapHeight - BUFFER_HEIGHT;
+    const uint8_t buffer_max_x = map_width - BUFFER_WIDTH;
+    const uint8_t buffer_max_y = map_height - BUFFER_HEIGHT;
 
     uint8_t buffer_x = 0;
     uint8_t buffer_y = 0;
 
     set_tile_data(0, 32, testtiles, 0x90);
-    for (uint16_t y = 0; y < min(BUFFER_HEIGHT, testmapHeight); y += 1) {
-        for (uint16_t x = 0; x < min(BUFFER_WIDTH, testmapWidth); x += 1) {
-            set_vram_byte(tilemap+(y*BUFFER_WIDTH)+x, testmap[(y*testmapWidth)+x] & 0x1f);
+    for (uint16_t y = 0; y < min(BUFFER_HEIGHT, map_height); y += 1) {
+        for (uint16_t x = 0; x < min(BUFFER_WIDTH, map_width); x += 1) {
+            set_vram_byte(tilemap+(y*BUFFER_WIDTH)+x, map[(y*map_width)+x] & 0x1f);
         }
     }
 
+    int8_t dx = 0;
+    int8_t dy = 0;
     while (1) {
-        if ((sys_time & 7) == 0) {
+        switch (sys_time & 7) {
+        case 0:
             uint8_t inp = joypad();
             
             // Get movement direction
-            int8_t dx = ((inp&J_RIGHT)!=0) - ((inp&J_LEFT)!=0);
-            int8_t dy = ((inp&J_DOWN)!=0) - ((inp&J_UP)!=0);
+            dx = ((inp&J_RIGHT)!=0) - ((inp&J_LEFT)!=0);
+            dy = ((inp&J_DOWN)!=0) - ((inp&J_UP)!=0);
 
             // Check X collision
-            if (testmap[(y*testmapWidth + (x+dx))] & 0x20) dx = 0;
+            if (map[(y*map_width + (x+dx))] & 0x20) dx = 0;
             else if (x == 0 && dx == -1) dx = 0;
-            else if (x == testmapWidth-1 && dx == 1) dx = 0;
+            else if (x == map_width-1 && dx == 1) dx = 0;
             
             // Check Y collision
-            if (testmap[((y+dy)*testmapWidth + x)] & 0x20) dy = 0;
+            if (map[((y+dy)*map_width + x)] & 0x20) dy = 0;
             else if (y == 1 && dy == -1) dy = 0; // Minimum Y is 1 because at Y=0 player sprite is completely off-screen.
-            else if (y == testmapHeight-1 && dy == 1) dy = 0; 
+            else if (y == map_height-1 && dy == 1) dy = 0; 
 
 
             // If moving both horizontally and vertically, alternate between them every movement step
@@ -95,7 +104,7 @@ void main(void) {
                 if (sys_time & 8) dx = 0;
                 else dy = 0;
             }
-
+            
             // Set player sprite to point in direction of movement
             if (dx == 1) {
                 set_sprite_tile(PLAYER_SPRITE, TILE_PLAYER_SIDE);
@@ -113,11 +122,13 @@ void main(void) {
                 set_sprite_tile(PLAYER_SPRITE, TILE_PLAYER_UP);
                 set_sprite_prop(PLAYER_SPRITE, 0);
             }
-
+            break;
+            
+        case 1:
             // Load map into tilemap if necessary
             // TODO - Make sure there aren't any off-by-one errors
             if (dx != 0 || dy != 0) {
-                if (testmapWidth > BUFFER_WIDTH && dx != 0) {
+                if (map_width > BUFFER_WIDTH && dx != 0) {
                     // Moving left
                     if (buffer_x != 0 && dx == -1 && x == (buffer_x + SCREEN_WIDTH_2 + 1)) {
                         buffer_x -= 1;
@@ -125,8 +136,8 @@ void main(void) {
                         uint8_t src_x = buffer_x;
                         uint8_t dest_x = src_x % BUFFER_WIDTH;
 
-                        for (uint16_t cy = 0; cy < min(BUFFER_HEIGHT, testmapHeight); cy += 1) {
-                            set_vram_byte(tilemap+(cy*BUFFER_WIDTH)+dest_x, testmap[((cy+buffer_y)*testmapWidth)+src_x] & 0x1f);
+                        for (uint16_t cy = 0; cy < min(BUFFER_HEIGHT, map_height); cy += 1) {
+                            set_vram_byte(tilemap+(cy*BUFFER_WIDTH)+dest_x, map[((cy+buffer_y)*map_width)+src_x] & 0x1f);
                         }
                     }
                     // Moving right
@@ -136,12 +147,12 @@ void main(void) {
                         uint8_t src_x = buffer_x + BUFFER_WIDTH - 1;
                         uint8_t dest_x = src_x % BUFFER_WIDTH;
 
-                        for (uint16_t cy = 0; cy < min(BUFFER_HEIGHT, testmapHeight); cy += 1) {
-                            set_vram_byte(tilemap+(cy*BUFFER_WIDTH)+dest_x, testmap[((cy+buffer_y)*testmapWidth)+src_x] & 0x1f);
+                        for (uint16_t cy = 0; cy < min(BUFFER_HEIGHT, map_height); cy += 1) {
+                            set_vram_byte(tilemap+(cy*BUFFER_WIDTH)+dest_x, map[((cy+buffer_y)*map_width)+src_x] & 0x1f);
                         }
                     }
                 }
-                if (testmapHeight > BUFFER_HEIGHT && dy != 0) {
+                if (map_height > BUFFER_HEIGHT && dy != 0) {
                     // Moving down
                     if (buffer_y != 0 && dy == -1 && y == (buffer_y + SCREEN_HEIGHT_2 + 1)) {
                         buffer_y -= 1;
@@ -149,8 +160,8 @@ void main(void) {
                         uint8_t src_y = buffer_y;
                         uint8_t dest_y = src_y % BUFFER_HEIGHT;
 
-                        for (uint16_t cx = 0; cx < min(BUFFER_WIDTH, testmapWidth); cx += 1) {
-                            set_vram_byte(tilemap+(dest_y*BUFFER_WIDTH)+cx, testmap[(src_y*testmapWidth)+(cx+buffer_x)] & 0x1f);
+                        for (uint16_t cx = 0; cx < min(BUFFER_WIDTH, map_width); cx += 1) {
+                            set_vram_byte(tilemap+(dest_y*BUFFER_WIDTH)+cx, map[(src_y*map_width)+(cx+buffer_x)] & 0x1f);
                         }
                     }
                     // Moving up
@@ -160,19 +171,21 @@ void main(void) {
                         uint8_t src_y = buffer_y + BUFFER_HEIGHT - 1;
                         uint8_t dest_y = src_y % BUFFER_HEIGHT;
 
-                        for (uint16_t cx = 0; cx < min(BUFFER_WIDTH, testmapWidth); cx += 1) {
-                            set_vram_byte(tilemap+(dest_y*BUFFER_WIDTH)+cx, testmap[(src_y*testmapWidth)+(cx+buffer_x)] & 0x1f);
+                        for (uint16_t cx = 0; cx < min(BUFFER_WIDTH, map_width); cx += 1) {
+                            set_vram_byte(tilemap+(dest_y*BUFFER_WIDTH)+cx, map[(src_y*map_width)+(cx+buffer_x)] & 0x1f);
                         }
                     }
                 }
             }
+            break;
 
+        case 2:
             x = x + dx;
             y = y + dy;
 
             // Calculate offset of camera (bkg scroll in tiles)
-            uint8_t camera_tile_offset_x = max(min(x, testmapWidth - SCREEN_WIDTH_2 - 1), SCREEN_WIDTH_2) - SCREEN_WIDTH_2;
-            uint8_t camera_tile_offset_y = max(min(y, testmapHeight - SCREEN_HEIGHT_2), SCREEN_HEIGHT_2 + 1) - SCREEN_HEIGHT_2;
+            uint8_t camera_tile_offset_x = max(min(x, map_width - SCREEN_WIDTH_2 - 1), SCREEN_WIDTH_2) - SCREEN_WIDTH_2;
+            uint8_t camera_tile_offset_y = max(min(y, map_height - SCREEN_HEIGHT_2), SCREEN_HEIGHT_2 + 1) - SCREEN_HEIGHT_2;
             
             // Calculate offset of player sprite
             uint8_t player_tile_offset_x = x - camera_tile_offset_x;
@@ -180,6 +193,7 @@ void main(void) {
             
             move_sprite(PLAYER_SPRITE, player_tile_offset_x*8 + DEVICE_SPRITE_PX_OFFSET_X/2, player_tile_offset_y*8 + DEVICE_SPRITE_PX_OFFSET_Y/2);
             move_bkg(camera_tile_offset_x*8 + 4, camera_tile_offset_y*8 - 3);
+            break;
         }
 
         vsync();
