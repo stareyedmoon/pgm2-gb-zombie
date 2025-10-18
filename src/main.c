@@ -24,8 +24,8 @@ void main(void) {
 
     set_sprite_data(0, 8, test);
     
-    uint8_t x = 80;
-    uint8_t y = 100;
+    uint8_t x = 10;
+    uint8_t y = 13;
 
     set_tile_data(0, 64, testtiles, 0x90);
     for (uint16_t i = 0; i < 32*32; i += 1) {
@@ -51,33 +51,35 @@ void main(void) {
         int8_t dx = 0;
         int8_t dy = 0;
         if (inp & J_UP) {
-            dy--;
+            dy -= 1;
             set_sprite_tile(0, 4);
             set_sprite_prop(0, 0);
         }
         if (inp & J_DOWN) {
-            dy++;
+            dy += 1;
             set_sprite_tile(0, 0);
             set_sprite_prop(0, 0);
         }
         if (inp & J_RIGHT) {
-            dx++;
+            dx += 1;
             set_sprite_tile(0, 2);
             set_sprite_prop(0, 0);
         }
         if (inp & J_LEFT) {
-            dx--;
+            dx -= 1;
             set_sprite_tile(0, 2);
             set_sprite_prop(0, S_FLIPX);
         }
 
-        if (testmap[((y/8)*32 + (x+dx)/8) & 0x3FF] & 0x20) dx = 0;
-        x += dx;
-        if (testmap[(((y+dy)/8)*32 + x/8) & 0x3FF] & 0x20) dy = 0;
-        y += dy;
+        if ((sys_time & 7) == 0) {
+            if (testmap[(y*32 + x+dx) & 0x3FF] & 0x20) dx = 0;
+            x += dx;
+            if (testmap[((y+dy)*32 + x) & 0x3FF] & 0x20) dy = 0;
+            y += dy;
+        }
 
         move_sprite(0, 84, 76);
-        move_bkg(x - 80, y - 75);
+        move_bkg(x*8 - 76, y*8 - 71);
 
         vsync();
     }
