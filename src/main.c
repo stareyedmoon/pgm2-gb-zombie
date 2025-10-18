@@ -19,6 +19,13 @@ uint8_t random(void) {
     return state & 0xff;
 }
 
+uint8_t min(uint8_t a, uint8_t b) {
+    return a < b ? a : b;
+}
+uint8_t max(uint8_t a, uint8_t b) {
+    return a < b ? b : a;
+}
+
 void main(void) {
     SPRITES_8x16;
 
@@ -29,21 +36,11 @@ void main(void) {
 
     set_tile_data(0, 64, testtiles, 0x90);
     for (uint16_t i = 0; i < 32*32; i += 1) {
-        //tilemap[i] = testmap[i] & 0x1f;
         set_vram_byte(tilemap+i, (testmap[i] & 0x1f));
     }
-    for (uint16_t i = 32*24; i < 32*32; i += 1) {
-        set_vram_byte(tilemap+i, random() & 0x3f);
-    }
-    
-    /*for (uint16_t i = 16*288; i < 16*320; i += 1) {
-        set_vram_byte(tiles+i, random());
-    }*/
 
     SHOW_SPRITES;
     SHOW_BKG;
-
-    //set_bkg_tiles(0, 0, 32, 24, )
 
     while (1) {
         uint8_t inp = joypad();
@@ -72,14 +69,20 @@ void main(void) {
         }
 
         if ((sys_time & 7) == 0) {
-            if (testmap[(y*32 + x+dx) & 0x3FF] & 0x20) dx = 0;
-            x += dx;
+            if (testmap[(y*32 + ((x+dx)&31))] & 0x20) dx = 0;
+            x = (x + dx) & 31;
             if (testmap[((y+dy)*32 + x) & 0x3FF] & 0x20) dy = 0;
-            y += dy;
+            y = (y + dy) & 31;
         }
 
-        move_sprite(0, 84, 76);
-        move_bkg(x*8 - 76, y*8 - 71);
+        uint8_t camera_tile_offset_x = max(min(x, testmapWidth - DEVICE_SCREEN_WIDTH/2 - 1), DEVICE_SCREEN_WIDTH/2) - DEVICE_SCREEN_WIDTH / 2;
+        uint8_t camera_tile_offset_y = max(min(y, testmapHeight - DEVICE_SCREEN_HEIGHT/2 - 1), DEVICE_SCREEN_HEIGHT/2) - DEVICE_SCREEN_HEIGHT / 2;
+
+        uint8_t player_tile_offset_x = x - camera_tile_offset_x;
+        uint8_t player_tile_offset_y = y - camera_tile_offset_y;
+
+        move_sprite(0, player_tile_offset_x*8 + DEVICE_SPRITE_PX_OFFSET_X/2, player_tile_offset_y*8 - 4 + DEVICE_SPRITE_PX_OFFSET_Y/2);
+        move_bkg(camera_tile_offset_x*8 + 4, camera_tile_offset_y*8 + 1);
 
         vsync();
     }
