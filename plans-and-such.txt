@@ -27,3 +27,24 @@ Map tiles:
 
     TODO - Figure out how transition-type tiles should specify the destination
     TODO - Add something for trees and such
+
+
+    If I add map compression, how should maps get loaded without decompressing every time it's accessed?
+        Idea 1 - Split into 32x32 chunks (512 bytes) and load 4 at a time (for a total of 2 KiB),
+                 replacing the ones which are loaded when needed, similarly to how tile loading works.
+                 For this to be as quick as reasonably possible, it would probably have the sizes (in bytes)
+                 of each chunk, and possibly each row of chunks.
+    
+                 Positives:
+                    - Relatively easy to spread out over multiple banks if needed
+                    - Fairly simple to implement
+                 Negatives:
+                    - It's likely that lag spikes will occur when loading new parts of the map
+                 Neutrals:
+                    - 2 KiB of RAM (25%) used at any given time for the map
+
+                 Possible changes:
+                    - Use 16x16 chunks and load 9 at a time, using less RAM (1152 bytes, or ~14%)
+                      and having faster loading times, at the cost of more frequent loading, slightly
+                      larger total compressed map size, and possibly slower tile loading due to
+                      multiplication by a non-power-of-two.
