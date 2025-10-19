@@ -1,0 +1,29 @@
+Map tiles:
+    0 - Empty                       Always pure black
+    1 - Wall
+    2 - Wall decoration             Example: Window
+    3 - Edge
+    4 - 
+    5 - 
+    6 - 
+    7 - 
+    8 - 
+    9 - Stairs
+    A - Path
+    B - Ground                      Example: Grass
+    C - 
+    D - 
+    E - Door
+    F - Level transition
+
+    Tiles 0-3 are collidable
+    Tiles E-F are transitions
+    These are likely to be reorganized in the future, and some of them will probably have their names changed.
+
+
+    These get converted into various tiles depending on the surrounding tiles and the map type (such as interiors and exteriors)
+
+    Level transition tiles (F) get the texture of their non-collidable neighbor (neighbors are checked in this order: Left, Up, Right, Down)
+
+    TODO - Figure out how transition-type tiles should specify the destination
+    TODO - Add something for trees and such
