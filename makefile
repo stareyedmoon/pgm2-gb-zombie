@@ -26,7 +26,7 @@ help:
 
 echo:
 	@echo "CC: ${CC}"
-	@echo "PORT: ${PORT}"
+	@echo "CFLAGS: ${CFLAGS}"
 	@echo "SOURCE: ${SOURCE}"
 	@echo "BUILD: ${BUILD}"
 	@echo "src_c: ${src_c}"
