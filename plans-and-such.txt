@@ -48,3 +48,16 @@ Map tiles:
                       and having faster loading times, at the cost of more frequent loading, slightly
                       larger total compressed map size, and possibly slower tile loading due to
                       multiplication by a non-power-of-two.
+                      + 12x12 chunks might also be a possibility, if we really run low on RAM
+    
+    If I add map compression, how should it work?
+        Idea 1 - RLE encoded runlength:value
+                 Runlength is encoded as follows:
+                    0-7 ones followed by a zero specify the magnitude of the number.
+                    [Magnitude] bits are read in, and get a 1 attached to the front,
+                        and is then subtracted by one. The result is the runlength.
+                    Note: This is the same format used by Pokemon sprite compression
+                          for runlengths, which is the best universal code I've found
+                          or managed to come up with for smaller numbers.
+                 Value is the map tile
+                 
