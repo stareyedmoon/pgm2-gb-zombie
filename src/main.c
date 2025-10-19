@@ -78,14 +78,6 @@ void main(void) {
 
     set_tile_data(0, 32, testtiles, 0x90);
 
-    /*
-    for (uint16_t y = 0; y < min(BUFFER_HEIGHT, map_height); y += 1) {
-        for (uint16_t x = 0; x < min(BUFFER_WIDTH, map_width); x += 1) {
-            set_vram_byte(tilemap+(y*BUFFER_WIDTH)+x, map[(y*map_width)+x] & 0x1f);
-        }
-    }
-    */
-
     load_map(tilemap, map, map_width, map_height, 0, 0, 32, 32);
 
     int8_t dx = 0;
