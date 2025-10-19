@@ -1,11 +1,11 @@
-CC := lcc
-CFLAGS += -msm83:gb -Wa-l -Wf--opt-code-speed
-
 SOURCE := ./src
 BUILD := ./build
 
+CC := lcc
+CFLAGS += -msm83:gb -Wa-l -Wf--opt-code-speed "-Wf-I${SOURCE}/include"
 
-src_c := $(wildcard ${SOURCE}/*.c)
+
+src_c := $(wildcard ${SOURCE}/*.c) $(wildcard ${SOURCE}/*/*.c)
 obj_c := $(patsubst ${SOURCE}/%.c, ${BUILD}/%.o, ${src_c})
 bin := out.gb
 
