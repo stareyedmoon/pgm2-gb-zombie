@@ -8,8 +8,10 @@
 #include <stdio.h>
 
 #define ASSERT(expr, msg) do {\
-        puts(msg);\
-        while (1) {vsync()}\
+        if (!(expr)) {\
+            puts(msg);\
+            while (1) {vsync()}\
+        }\
     } while (0)
 
 #else
