@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#include <engine.h>
+
 #include "tile.h"
 #include "testmap.h"
 #include "testtiles.h"
@@ -15,9 +17,6 @@
 #define TILE_PLAYER_DOWN 0
 #define TILE_PLAYER_SIDE 2
 #define TILE_PLAYER_UP 4
-
-static uint8_t* const tilemap = (uint8_t*)0x9800;
-static uint8_t* const tiles = (uint8_t*)0x8000;
 
 uint8_t random(void) {
     static uint32_t state = 0x5944259E;
@@ -36,33 +35,15 @@ uint8_t max(uint8_t a, uint8_t b) {
     return a < b ? b : a;
 }
 
-
-void load_map(uint8_t* const restrict dest, const uint8_t* const restrict src, uint16_t map_width, uint16_t map_height, uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
-    ASSERT(w <= BUFFER_WIDTH, "Map load width should not exceed buffer width.");
-    ASSERT(h <= BUFFER_HEIGHT, "Map load height should not exceed buffer height.");    
-    ASSERT((x+w) <= map_width, "Width overrun during attempt to load map.");
-    ASSERT((y+h) <= map_height, "Height overrrun during attempt to load map.");
-
-    for (uint16_t src_y = y; src_y < (y+h); src_y += 1) {
-        uint16_t dest_y = src_y % BUFFER_HEIGHT;
-        for (uint16_t src_x = x; src_x < (x+w); src_x += 1) {
-            uint16_t dest_x = src_x % BUFFER_WIDTH;
-
-            set_vram_byte(dest + (dest_y*BUFFER_WIDTH) + dest_x, src[(src_y*map_width) + src_x] & 0x1F);
-        }
-    }
-}
-
-
 void main(void) {
     SPRITES_8x16;
     SHOW_SPRITES;
     SHOW_BKG;
 
 
-    const unsigned char* map = testmap;
-    uint16_t map_width = testmapWidth;
-    uint16_t map_height = testmapHeight;
+    const unsigned char* volatile map = testmap;
+    volatile uint16_t map_width = testmapWidth;
+    volatile uint16_t map_height = testmapHeight;
 
 
     set_sprite_data(TILE_PLAYER_DOWN, 6, test);
@@ -78,7 +59,7 @@ void main(void) {
 
     set_tile_data(0, 32, testtiles, 0x90);
 
-    load_map(tilemap, map, map_width, map_height, 0, 0, 32, 32);
+    load_map(TILEMAP0, map, map_width, map_height, 0, 0, 32, 32);
 
     int8_t dx = 0;
     int8_t dy = 0;
@@ -135,24 +116,24 @@ void main(void) {
                     // Moving left
                     if (buffer_x != 0 && dx == -1 && x == (buffer_x + SCREEN_WIDTH_2 + 1)) {
                         buffer_x -= 1;
-                        load_map(tilemap, map, map_width, map_height, buffer_x, buffer_y, 1, min(BUFFER_HEIGHT, map_height));
+                        load_map(TILEMAP0, map, map_width, map_height, buffer_x, buffer_y, 1, min(BUFFER_HEIGHT, map_height));
                     }
                     // Moving right
                     else if (buffer_x < buffer_max_x && dx == 1 && x == (buffer_x + BUFFER_WIDTH - SCREEN_WIDTH_2 - 2)) {
                         buffer_x += 1;
-                        load_map(tilemap, map, map_width, map_height, buffer_x + BUFFER_WIDTH - 1, buffer_y, 1, min(BUFFER_HEIGHT, map_height));
+                        load_map(TILEMAP0, map, map_width, map_height, buffer_x + BUFFER_WIDTH - 1, buffer_y, 1, min(BUFFER_HEIGHT, map_height));
                     }
                 }
                 if (map_height > BUFFER_HEIGHT && dy != 0) {
                     // Moving down
                     if (buffer_y != 0 && dy == -1 && y == (buffer_y + SCREEN_HEIGHT_2 + 1)) {
                         buffer_y -= 1;
-                        load_map(tilemap, map, map_width, map_height, buffer_x, buffer_y, min(BUFFER_WIDTH, map_width), 1);
+                        load_map(TILEMAP0, map, map_width, map_height, buffer_x, buffer_y, min(BUFFER_WIDTH, map_width), 1);
                     }
                     // Moving up
                     else if (buffer_y < buffer_max_y && dy == 1 && y == (buffer_y + BUFFER_HEIGHT - SCREEN_HEIGHT_2 - 2)) {
                         buffer_y += 1;
-                        load_map(tilemap, map, map_width, map_height, buffer_x, buffer_y + BUFFER_HEIGHT - 1, min(BUFFER_WIDTH, map_width), 1);
+                        load_map(TILEMAP0, map, map_width, map_height, buffer_x, buffer_y + BUFFER_HEIGHT - 1, min(BUFFER_WIDTH, map_width), 1);
                     }
                 }
             }

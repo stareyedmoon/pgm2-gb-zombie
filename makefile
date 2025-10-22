@@ -2,7 +2,7 @@ SOURCE := ./src
 BUILD := ./build
 
 CC := lcc
-CFLAGS += -msm83:gb -Wa-l -Wf--opt-code-speed "-Wf-I${SOURCE}/include"
+CFLAGS += -msm83:gb -Wa-l -Wb-yt0x00 -Wf--opt-code-speed "-Wf-I${SOURCE}/include"
 
 
 src_c := $(wildcard ${SOURCE}/*.c) $(wildcard ${SOURCE}/*/*.c)

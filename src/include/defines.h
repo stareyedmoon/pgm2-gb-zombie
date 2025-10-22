@@ -17,4 +17,11 @@
 #define SCREEN_HEIGHT_2 (DEVICE_SCREEN_HEIGHT/2)
 
 
+#define TILEBLOCK0 ((uint8_t*)0x8000)
+#define TILEBLOCK1 ((uint8_t*)0x8800)
+#define TILEBLOCK2 ((uint8_t*)0x9000)
+
+#define TILEMAP0 ((uint8_t*)0x9800)
+#define TILEMAP1 ((uint8_t*)0x9C00)
+
 #endif // _defines_h_INCLUDE

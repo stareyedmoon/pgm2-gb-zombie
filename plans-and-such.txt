@@ -60,4 +60,10 @@ Map tiles:
                           for runlengths, which is the best universal code I've found
                           or managed to come up with for smaller numbers.
                  Value is the map tile
-                 
+
+Encounters:
+   When should enemies be encountered?
+   What decides what kind of enemies are encountered?
+   Other than the basic detail of being turn-based, how should encounters work?
+      Perhaps, somewhat like Undertale, the amount of damage you deal and take
+         are determined by your own skill?
