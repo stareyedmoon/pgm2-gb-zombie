@@ -45,12 +45,17 @@ int8_t char_to_tile(uint8_t base_tile, char c) {
 	if (c == '!') return base_tile + 0x1E;
 	if (c == '?') return base_tile + 0x1F;
 	if (c >= '0' && c <= '9') return base_tile + 0x20 + c - '0';
+	if (c == '\'') return base_tile + 0x2A;
+	if (c == '"') return base_tile + 0x2B;
+	if (c == '(') return base_tile + 0x2C;
+	if (c == ')') return base_tile + 0x2D;
 
-	BURN("Invalid character conversion.");
+	ASSERT(1, "Invalid character conversion.");
+	return base_tile + 0x1F;
 }
 
 void render_text(uint8_t* const restrict tilemap,
-	             const char* const restrict string, uint16_t x, uint16_t y,
+	             const char* restrict string, uint16_t x, uint16_t y,
 				 uint16_t max_width, uint16_t max_height,
 				 bool intelligent_wrapping, uint8_t render_mode) {
 
@@ -60,7 +65,7 @@ void render_text(uint8_t* const restrict tilemap,
 	uint16_t yoff = 0;
 
 	for (; *string; string++) {
-		tilemap[(y+yoff)*BUFFER_WIDTH + x+xoff] = char_to_tile(64, *string);
+		set_vram_byte(tilemap + ((y+yoff)*BUFFER_WIDTH) + x+xoff, char_to_tile(64, *string));
 
 		xoff += 1;
 		if (xoff == max_width) {
@@ -70,17 +75,26 @@ void render_text(uint8_t* const restrict tilemap,
 		if (yoff == max_height) {
 			if (render_mode == TEXTMODE_NOSCROLL) break;
 			if (render_mode == TEXTMODE_SCROLL) {
-				waitpadup();
-				waitpad(~0);
+				waitpad(0xff);
 
 				yoff -= 1;
-				for (uint16_t cx = x; cx < (x+xoff); x += 1) {
-					tilemap[(y+max_height-2)*BUFFER_WIDTH + cx] = tilemap[(y+max_height-1)*BUFFER_WIDTH + cx];
-					tilemap[(y+max_height-1)*BUFFER_WIDTH + cx] = 0x40;
+				for (uint16_t cy = y; cy < (y+max_height); cy += 1) {
+					for (uint16_t cx = x; cx < (x+max_width); cx += 1) {
+						uint16_t addr = (cy*BUFFER_WIDTH) + cx;
+						set_vram_byte(tilemap + addr, get_vram_byte(tilemap + addr + BUFFER_WIDTH));
+					}
+				}
+				for (uint16_t cx = x; cx < (x+max_width); cx += 1) {
+					set_vram_byte(tilemap + (y + max_height - 1)*BUFFER_WIDTH + cx, char_to_tile(64, ' '));
 				}
 			}
 		}
 		
-		for (uint8_t i = 0; i < e_text_speed; i++) vsync();
+		if (joypad()) {
+			vsync();
+		}
+		else {
+			for (uint8_t i = 0; i < e_text_speed; i++) vsync();
+		}
 	}
 }

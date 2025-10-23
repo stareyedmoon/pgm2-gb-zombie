@@ -7,6 +7,7 @@
 #include "tile.h"
 #include "testmap.h"
 #include "testtiles.h"
+#include <font.h>
 
 #include "defines.h"
 #include "debug.h"
@@ -40,6 +41,46 @@ void main(void) {
     SHOW_SPRITES;
     SHOW_BKG;
 
+    waitpadup();
+    waitpad(0xff);
+
+    set_tile_data(64, 64, font_tiles, 0x90);
+
+    set_text_speed(3);
+    render_text(TILEMAP0,
+        "Who are you talking "
+        "to right now? Who is"
+        "it you think you    "
+        "see? Do you know how"
+        "much I make a year? "
+        "I mean, even if I   "
+        "told you, you       "
+        "wouldn't believe it."
+        "Do you know what    "
+        "would happen if I   "
+        "stopped going in to "
+        "work? A business big"
+        "enough to be listed "
+        "on the NASDAQ goes  "
+        "belly up.           "
+        "Disappears. It      "
+        "ceases to exist     "
+        "without me. No, you "
+        "clearly don't know  "
+        "who you're talking  "
+        "to, so let me clue  "
+        "you in. I am not in "
+        "danger, Skyler. I am"
+        "the danger. A guy   "
+        "opens his door and  "
+        "gets shot and you   "
+        "think that of me?   "
+        "No. I am the one who"
+        "knocks!             "
+        "3.14159265358       ",
+        0, 0, 20, 18, false, TEXTMODE_SCROLL);
+
+    return;
 
     const unsigned char* volatile map = testmap;
     volatile uint16_t map_width = testmapWidth;

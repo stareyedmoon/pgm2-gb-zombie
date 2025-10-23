@@ -13,12 +13,7 @@
             while (1) { vsync() }\
         }\
     } while (0)
-
-#define BURN(msg) do {\
-        puts(msg)\
-        while (1) { vsync(); }\
-    } while (0)
-
+    
 #else
 
 #define ASSERT(expr, msg)

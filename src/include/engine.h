@@ -49,7 +49,7 @@ uint8_t get_text_speed(void);
 /// @param render_mode Specifies which way to render the text. Mode identifiers are prefixed with `TEXTMODE_`
 /// @note Assumes characters are loaded at tiles 64-127
 void render_text(uint8_t* const restrict tilemap,
-                 const char* const restrict string,
+                 const char* restrict string,
 				 uint16_t x,
 				 uint16_t y,
 				 uint16_t max_width,
