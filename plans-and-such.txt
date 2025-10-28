@@ -63,7 +63,12 @@ Map tiles:
 
 Encounters:
    When should enemies be encountered?
+      - I'm thinking I'll do it like Undertale and just have encounters happen randomly when you move.
+
    What decides what kind of enemies are encountered?
+      - Each map decides which zombie types can be encountered. To be clear, that means the odds are the same over the entire map, regardless of how large it is.
+        Probably do it as a number generated from 0 to 255, and the map specifies the probability of each zombie type, where the sum of them all must be 255.
+
    Other than the basic detail of being turn-based, how should encounters work?
       Perhaps, somewhat like Undertale, the amount of damage you deal and take
          are determined by your own skill?

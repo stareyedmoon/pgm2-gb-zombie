@@ -2,14 +2,48 @@
 
 #include <engine.h>
 #include <defines.h>
+#include <font.h>
 
 #include <debug.h>
 
+/******************************************************************************\
+****  Internal Variables  ******************************************************
+\******************************************************************************/
 
-static uint8_t e_text_speed = 0;
+/// @brief Frames between each character in text rendering
+uint8_t e_text_speed = 0;
+
+/// @brief Pointer to 
+static const uint8_t* e_map = NULL;
+static const uint16_t e_map_width = 0;
+static const uint16_t e_map_height = 0;
+
+static uint16_t e_map_loaded_left = 0;
+static uint16_t e_map_loaded_top = 0;
+
+static uint16_t e_map_loaded_right = 0;
+static uint16_t e_map_loaded_down = 0;
 
 
-void load_map(uint8_t* const restrict dest, const uint8_t* const restrict src,
+static uint8_t e_random_x = 0;
+static uint8_t e_random_y = 0;
+static uint8_t e_random_z = 0;
+static uint8_t e_random_a = 1;
+
+/******************************************************************************\
+****  Internal Functions  ******************************************************
+\******************************************************************************/
+
+/// @brief Load mapdata into tilemap
+/// @param dest Pointer to tilemap to render into
+/// @param src Pointer to map data to load from
+/// @param map_width Width of map data
+/// @param map_height Height of map data
+/// @param x Left edge of map data to load
+/// @param y Top edge of map data to load
+/// @param w Width of map data to load
+/// @param h Height of map data to load
+static void load_map(uint8_t* const restrict dest, const uint8_t* const restrict src,
 	          uint16_t map_width, uint16_t map_height, uint16_t x, uint16_t y,
 			  uint16_t w, uint16_t h) {
     ASSERT(w <= BUFFER_WIDTH, "Map load width should not exceed buffer width.");
@@ -27,15 +61,12 @@ void load_map(uint8_t* const restrict dest, const uint8_t* const restrict src,
     }
 }
 
-void set_text_speed(uint8_t speed) {
-	e_text_speed = speed;
-}
-
-uint8_t get_text_speed(void) {
-	return e_text_speed;
-}
-
-int8_t char_to_tile(uint8_t base_tile, char c) {
+/// @brief Convert an ASCII character to internal representation
+/// @param base_tile Index of first tile of font
+/// @param c ASCII character
+/// @return Index of character tile
+/// @note Returns a question mark if character doesn't exist in character set
+static int8_t char_to_tile(uint8_t base_tile, char c) {
 	if (c == ' ') return base_tile + 0x00;
 	if (c >= 'a' && c <= 'z') return base_tile + 0x01 + c - 'a'; // Lowercase gets converted to uppercase
 	if (c >= 'A' && c <= 'Z') return base_tile + 0x01 + c - 'A';
@@ -52,6 +83,31 @@ int8_t char_to_tile(uint8_t base_tile, char c) {
 
 	ASSERT(1, "Invalid character conversion.");
 	return base_tile + 0x1F;
+}
+
+/******************************************************************************\
+****  External Functions  ******************************************************
+\******************************************************************************/
+
+void init_engine(void) {
+	SPRITES_8x16;
+	SHOW_SPRITES;
+	SHOW_BKG;
+
+	set_tile_data(64, 64, font_tiles, 0x90);
+}
+
+// Supposedly a decent and fast 8-bit PRNG. Will need to see how it performs during gameplay, but until then I'll go on faith.
+// Source: https://github.com/edrosten/8bit_rng/blob/master/rng-4261412736.c
+uint8_t random(void) {
+	uint8_t t = e_random_x ^ (e_random_x << 4);
+
+	e_random_x = e_random_y;
+	e_random_y = e_random_z;
+	e_random_z = e_random_a;
+	e_random_a = e_random_z ^ t ^ (e_random_z >> 1) ^ (t << 1);
+
+	return e_random_a;
 }
 
 void render_text(uint8_t* const restrict tilemap,

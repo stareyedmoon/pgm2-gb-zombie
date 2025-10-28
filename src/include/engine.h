@@ -1,26 +1,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <player.h>
+
 #ifndef _engine_h_INCLUDE
 #define _engine_h_INCLUDE
-
-/// @brief Load mapdata into tilemap
-/// @param dest Pointer to tilemap to render into
-/// @param src Pointer to map data to load from
-/// @param map_width Width of map data
-/// @param map_height Height of map data
-/// @param x Left edge of map data to load
-/// @param y Top edge of map data to load
-/// @param w Width of map data to load
-/// @param h Height of map data to load
-void load_map(uint8_t* const restrict dest,
-	          const uint8_t* const restrict src,
-			  uint16_t map_width,
-			  uint16_t map_height,
-			  uint16_t x,
-			  uint16_t y,
-			  uint16_t w,
-			  uint16_t h);
 
 // Render text without scrolling.
 // The behaviour when text can't fit in the specified box is undefined.
@@ -29,14 +13,16 @@ void load_map(uint8_t* const restrict dest,
 // When text cannot fit in the specified box, split text into chunks and go to the next chunk on input
 #define TEXTMODE_SCROLL 1
 
-/// @brief Set text speed for character-by-character text rendering using `render_text`.
-/// @param speed Time to display each character in frames. A speed of 0 will render instantly.
-/// @bug A speed of 255 will freeze indefinitely.
-void set_text_speed(uint8_t speed);
 
-/// @brief Get text speed used by `render_text` for character-by-character rendering.
-/// @return Time to display each character in frames.
-uint8_t get_text_speed(void);
+extern uint8_t e_text_speed;
+
+
+/// @brief Initialize all engine components 
+void init_engine(void);
+
+/// @brief Generates a random 8-bit number.
+/// @return Should be rather obvious, I hope.
+uint8_t random(void);
 
 /// @brief Render text onto the target tilemap
 /// @param tilemap Pointer to tilemap to render text onto
@@ -56,6 +42,5 @@ void render_text(uint8_t* const restrict tilemap,
 				 uint16_t max_height,
 				 bool intelligent_wrapping,
 				 uint8_t render_mode);
-
 
 #endif // _engine_h_INCLUDE
