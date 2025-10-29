@@ -24,4 +24,9 @@
 #define TILEMAP0 ((uint8_t*)0x9800)
 #define TILEMAP1 ((uint8_t*)0x9C00)
 
+// Base index for Player tiles
+// There are the ones used for drawing the player.
+// Should be maybe 32 of them, I guess? Might change that later.
+#define TILE_BASE_PLAYER 0
+
 #endif // _defines_h_INCLUDE

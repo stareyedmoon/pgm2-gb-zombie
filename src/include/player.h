@@ -9,7 +9,7 @@
 #define _player_h_INCLUDE
 
 /// @brief Maximum number of item types that can be stored in a players inventory.
-#define PLAYER_INVENTORY_SIZE 5
+#define PLAYER_INVENTORY_SIZE 8
 
 /// @brief Maximum length of a player name in bytes.
 #define PLAYER_NAME_LENGTH 9
@@ -24,7 +24,7 @@
 #define PLAYER_ARCHETYPE_PATHETIC 3
 
 /// @brief Representation of a Player.
-/// @note Takes 32 bytes of RAM per instance.
+/// @note Takes 40 bytes of RAM per instance.
 typedef struct {
     // x and y specify the players position in the overworld (where you move around).
     // They don't really do anything during battles.
@@ -61,6 +61,8 @@ typedef struct {
 
     // Player name. Doesn't really serve a gameplay purpose, but does it ever? (Well, I guess it does in some games, like for example Undertale.)
     char name[PLAYER_NAME_LENGTH];
+
+    uint8_t sprite_index[2];
 } Player;
 
 /// @brief Creates a new player. Stats are decided by archetype, while Lv, Exp, inventory, weapon, and armor are initialized to 0/none.
@@ -68,6 +70,14 @@ typedef struct {
 /// @param archetype Archetype of the player. Must match one of the archetypes defined near the top of this file.
 /// @return Newly constructed player.
 Player player_new(char* name, uint8_t archetype);
+
+/// @brief Update the sprite for the player to point in the direction of movement.
+/// @param player Pointer to the player to update the sprite of.
+/// @param dx Delta X of movement, where negative is left and positive is right.
+/// @param dy Delta Y of movement, where negative is up and positive is down.
+/// @note The magnitude of dx and dy are ignored. Only their signs are used.
+/// @note If both dx and dy are non-zero, then dx takes priority.
+void player_update_sprite(Player* player, int8_t dx, int8_t dy);
 
 /// @brief Attempts to add an item to the players inventory.
 /// @param player Pointer to the player in question.
