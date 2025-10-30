@@ -16,9 +16,11 @@
 #define SCREEN_HEIGHT DEVICE_SCREEN_HEIGHT
 #define SCREEN_HEIGHT_2 (DEVICE_SCREEN_HEIGHT/2)
 
-
+// At indexes 0 to 127 in low addressing mode
 #define TILEBLOCK0 ((uint8_t*)0x8000)
+// Always at indexes 128 to 255
 #define TILEBLOCK1 ((uint8_t*)0x8800)
+// At indexes 0 to 127 in high addressing mode
 #define TILEBLOCK2 ((uint8_t*)0x9000)
 
 #define TILEMAP0 ((uint8_t*)0x9800)
