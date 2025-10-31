@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <entity.h>
+
 #ifndef _player_h_INCLUDE
 #define _player_h_INCLUDE
 
@@ -12,7 +14,7 @@
 #define PLAYER_INVENTORY_SIZE 8
 
 /// @brief Maximum length of a player name in bytes.
-#define PLAYER_NAME_LENGTH 9
+#define PLAYER_NAME_LENGTH 8
 
 /// @brief Generally normal person. Average health, intelligence, and strength.
 #define PLAYER_ARCHETYPE_BASIC 0
@@ -24,45 +26,25 @@
 #define PLAYER_ARCHETYPE_PATHETIC 3
 
 /// @brief Representation of a Player.
-/// @note Takes 40 bytes of RAM per instance.
+/// @note Takes 42 bytes.
 typedef struct {
-    // x and y specify the players position in the overworld (where you move around).
-    // They don't really do anything during battles.
-    uint16_t x;
-    uint16_t y;
+    Entity entity;
+    Encounterable encounterable;
 
-    // If this reaches zero, you die. Pretty normal game stuff, you really should've been able to guess that.
-    uint16_t health;
-
-    // Influences damage calculations, and what weapons can be used, kinda like Dark Souls, except not at all.
-    uint8_t intelligence;
-    // Added to Player for gameplay purposes.
-    // Influences damage calculations, and what weapons can be used (weapons can get quite heavy, you know).
-    uint8_t strength;
-    // Standard RPG stuff. Always nice to see a definite growth in stats over time. Just don't try to use a leveling system when writing a novel or something, it just doesn't fit there.
-    // Influences what weapons can be used, and the growth of INT and STR. Again, kinda like Dark Souls.
-    uint8_t level;
-    // When this reaches some threshold determined by level, you level up.
-    // Leveling up is good because it means you get stronger... and smarter? Murder making you smarter doesn't really work in the real world, but oh well.
-    // I've never actually played Dark Souls, but I'm pretty sure it doesn't use an EXP-based system, and you instead buy levels using "souls", which are like the in-game currency? You get them from murder, at any rate. Makes sense I guess. Where else would you get someones soul, if not through murder?
+    // When this reaches some threshold, the level (in Entity) of the player increases.
+    // The threshold is determined by the level.
     uint16_t experience;
 
-    // Specifies which items are in the players inventory, where 0 represents none.
+    // Item ID of all the items in the player's inventory. An ID of 0 represents an empty slot.
     uint8_t inventory_itemid[PLAYER_INVENTORY_SIZE];
-    // Represents how many of each item type are in the players inventory. Ignored if item type is 0.
-    // Might encode as BCD, depending on how expensive div-by-10 is. Would make the item limit 99 instead of 255, but I don't think that should be a significant limitation. Probably.
+
+    // How many items are stored in each slot of the inventory. Of course, it's ignored if the slot in question is empty.
+    // Might add a bug intentionally (so, not really a bug) to duplicate items in some way.
     uint8_t inventory_count[PLAYER_INVENTORY_SIZE];
-    // Which item is being used as a weapon. Only weapon-type items can be used.
-    // Influences damage calculations.
-    uint8_t weapon;
-    // Which item is being used as armor. Only armor-type items can be used.
-    // Reduces damage taken, I'd imagine.
-    uint8_t armor;
 
-    // Player name. Doesn't really serve a gameplay purpose, but does it ever? (Well, I guess it does in some games, like for example Undertale.)
+    // The name of the player, specified on creation.
+    // Only used for display, gameplay isn't affected at all... unless you count how long it takes to print some messages, which you might if you were a speedrunner, I guess.
     char name[PLAYER_NAME_LENGTH];
-
-    uint8_t sprite_index[2];
 } Player;
 
 /// @brief Creates a new player. Stats are decided by archetype, while Lv, Exp, inventory, weapon, and armor are initialized to 0/none.
