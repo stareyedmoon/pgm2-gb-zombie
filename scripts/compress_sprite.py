@@ -112,10 +112,10 @@ def image_get_pixel(image: Image.Image, x: int, y: int) -> tuple[int, int, int]:
 
 def get_closest_color_from_palette(color: tuple[int, int, int]) -> int:
 	PALETTE = [
-		( 60,  79,   0),
-		( 72, 100,   8),
+		(145, 155,   6),
 		( 96, 116,   4),
-		(145, 155,   6)
+		( 72, 100,   8),
+		( 60,  79,   0),
 	]
 
 	best_dist = 1e100
@@ -147,23 +147,21 @@ def int_to_pokecode(value: int) -> tuple[int, int]:
 
 	return ((int_to_unary_code(mag)[0] << mag) | (value & ((1 << mag) - 1)), mag*2)
 
-def deltacode(bits: Bits) -> Bits:
+def deltacode(bits: Bits, width: int, height: int) -> Bits:
 	output = Bits()
 
-	prev = False
-	for i in range(len(bits)):
-		if bits[i] != prev:
-			output.push(1, 1)
-		else:
-			output.push(0, 1)
-		prev = bits[i]
+	for y in range(height):
+		prev = False
+		for x in range(width):
+			if bits[y*width+x] != prev:
+				output.push(1, 1)
+			else:
+				output.push(0, 1)
+			prev = bits[y*width+x]
 
 	return output
 
-def runlength_encode(bits: Bits) -> Bits:
-	bits_pos = bits.tell()
-	bits.seek(0)
-
+def runlength_encode(bits: Bits, width: int, height: int) -> Bits:
 	output = Bits()
 
 	packet_type = 0 if bits.read(2)[0] == 0 else 1
@@ -171,28 +169,29 @@ def runlength_encode(bits: Bits) -> Bits:
 	bits.seek(0)
 
 	run_length = 0
-	for i in range(0, len(bits), 2):
-		data = bits.read(2)[0]
+	for x in range(0, width, 2):
+		for y in range(0, height, 1):
+			#data = bits.read(2)[0]
+			data = (bits[y*width + x] << 1) | bits[y*width + x + 1]
 
-		if data == 0:
-			if packet_type:
-				output.push(0, 2)
-				run_length = 0
+			if data == 0:
+				if packet_type:
+					output.push(0, 2)
+					run_length = 0
 			
-			run_length += 1
+				run_length += 1
 		
-		else:
-			if not packet_type:
-				output.push(int_to_pokecode(run_length))
+			else:
+				if not packet_type:
+					output.push(int_to_pokecode(run_length))
 
-			output.push(data, 2)
+				output.push(data, 2)
 
-		packet_type = 0 if data == 0 else 1
+			packet_type = 0 if data == 0 else 1
 
 	if packet_type == 0:
 		output.push(int_to_pokecode(run_length))
 
-	bits.seek(bits_pos)
 	return output
 
 def compress_image(image: Image.Image) -> bytes:
@@ -200,6 +199,9 @@ def compress_image(image: Image.Image) -> bytes:
 	img_height = (image.height + 7) // 8
 
 	print(f"Image size: {img_width}x{img_height}")
+
+	act_width = img_width * 8
+	act_height = img_height * 8
 
 	if max(img_width, img_height) > 16:
 		raise OverflowError(f"Cannot encode images larger than 128x128 (image is {img_width*8}x{img_height*8}).")
@@ -241,23 +243,23 @@ def compress_image(image: Image.Image) -> bytes:
 			match mode:
 				case 0:
 					compressed_bitplane = (
-						deltacode(bitplane_a),
-						deltacode(bitplane_b)
+						deltacode(bitplane_a, act_width, act_height),
+						deltacode(bitplane_b, act_width, act_height)
 					)
 				case 1:
 					compressed_bitplane = (
-						deltacode(bitplane_a),
+						deltacode(bitplane_a, act_width, act_height),
 						bitplane_a ^ bitplane_b
 					)
 				case 2:
 					compressed_bitplane = (
-						deltacode(bitplane_a),
-						deltacode(bitplane_a ^ bitplane_b)
+						deltacode(bitplane_a, act_width, act_height),
+						deltacode(bitplane_a ^ bitplane_b, act_width, act_height)
 					)
 			
 			compressed_bitplane = (
-				runlength_encode(compressed_bitplane[0]),
-				runlength_encode(compressed_bitplane[1])
+				runlength_encode(compressed_bitplane[0], act_width, act_height),
+				runlength_encode(compressed_bitplane[1], act_width, act_height)
 			)
 			
 			buffer.push(compressed_bitplane[0])
@@ -274,7 +276,9 @@ def compress_image(image: Image.Image) -> bytes:
 			best_index = i
 			best_length = len(compressed_sprite_data[i])
 
-	return compressed_sprite_data[best_index].to_bytes()
+	output.push(compressed_sprite_data[best_index])
+
+	return output.to_bytes()
 
 if __name__ == "__main__":
 
