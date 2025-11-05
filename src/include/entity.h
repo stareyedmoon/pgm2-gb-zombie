@@ -25,7 +25,7 @@ typedef struct {
 /// @note Takes 8 bytes.
 typedef struct {
     // Health of the encounterable, which for the purposes of simplifying code, includes the player. If it reaches zero, it dies.
-    uint16_t health;
+    uint8_t health;
 
     // The INT stat of the encounterable.
     // This has a slight effect on damage, and limits what weapons can be used.
@@ -56,6 +56,9 @@ typedef struct {
     // Heavy armor reduces speed, which is counteracted by strength.
     // Different armors absorb different damage types to different extents, not taking account the stats of the encounterable.
     uint8_t armor;
+
+    // Padding for 8 bytes.
+    uint8_t padding;
 } Encounterable;
 
 #endif // _entity_h_INCLUDE
