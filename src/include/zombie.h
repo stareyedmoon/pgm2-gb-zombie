@@ -8,6 +8,8 @@
 /// @brief Maximum length of a zombie name in bytes.
 #define ZOMBIE_NAME_LENGTH 9
 
+#define ZOMBIE_TYPE_BASIC 0
+
 /// @brief Representation of a Zombie.
 /// @note Takes 17 bytes. (Not ideal, in my opinion. Will think about this later, though.)
 typedef struct {

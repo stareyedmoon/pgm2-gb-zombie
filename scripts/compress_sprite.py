@@ -203,8 +203,8 @@ def compress_image(image: Image.Image) -> bytes:
 	act_width = img_width * 8
 	act_height = img_height * 8
 
-	if max(img_width, img_height) > 16:
-		raise OverflowError(f"Cannot encode images larger than 128x128 (image is {img_width*8}x{img_height*8}).")
+	if max(img_width, img_height) > 15:
+		raise OverflowError(f"Cannot encode images larger than 120x120 (image is {img_width*8}x{img_height*8}).")
 
 	output = Bits()
 
