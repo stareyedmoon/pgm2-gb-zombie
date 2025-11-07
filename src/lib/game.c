@@ -136,10 +136,15 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 
 	enable_interrupts();
 	set_interrupts(IE_REG | LCD_IFLAG);
+	
+
+
+
 	uint8_t zombie_shake_frame = 8;
 	int8_t zombie_shake[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 	
 	uint8_t current_button = 0;
+	uint8_t current_menu_selection = 0;
 	bool changed_menu = true;
 
 	// States:
@@ -177,20 +182,39 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 
 		// When we have changed the menu we need to draw the one we are now in.
 		if (changed_menu) {
+			char menu_text[141];
 			switch (current_button) {
 			case 0: // Fight menu
-				engine_render_text(TILEMAP0, "JON BIGRM\n???/??? HP\n\n-", 0, 8, 20, 7, false, TEXTMODE_NOSCROLL);
+				sprintf(menu_text, "%s\n%u OUT OF %u HP\n\n %s\n %s\n %s\n %s", "JON BIGRM", enemy->health, enemy->max_health, "ATTACK A", "ATTACK B", "ATTACK C", "ATTACK D");
+				current_menu_selection = 0;
+				
+				//engine_render_text(TILEMAP0, "JON BIGRM\n???/??? HP\n\n-", 0, 8, 20, 7, false, TEXTMODE_NOSCROLL);
 				break;
 			case 1: // Item menu
-				engine_render_text(TILEMAP0, "ITEMS GO HERE.", 0, 8, 20, 7, false, TEXTMODE_NOSCROLL);
+				sprintf(menu_text, "don't get hurt.");
+				current_menu_selection = 0;
+
+				//engine_render_text(TILEMAP0, "ITEMS GO HERE.", 0, 8, 20, 7, false, TEXTMODE_NOSCROLL);
 				break;
 			case 2: // Info menu
-				engine_render_text(TILEMAP0, "WHO THIS?", 0, 8, 20, 7, false, TEXTMODE_NOSCROLL);
+				sprintf(menu_text, "%s\n--------------------%s\n--------------------VIT %s%u      INT %s%uSTR %s%u      SPD %s%u", 
+					"JON BIGRM",
+					"IT'S GOT REAL BIG\nARMS OR SOMETHING.",
+					enemy->max_health < 100 ? (enemy->max_health < 10 ? "  " : " ") : "", enemy->max_health,
+					enemy->intelligence < 100 ? (enemy->intelligence < 10 ? "  " : " ") : "", enemy->intelligence,
+					enemy->strength < 100 ? (enemy->strength < 10 ? "  " : " ") : "", enemy->strength,
+					enemy->speed < 100 ? (enemy->speed < 10 ? "  " : " ") : "", enemy->speed);
+
+				//engine_render_text(TILEMAP0, "WHO THIS?", 0, 8, 20, 7, false, TEXTMODE_NOSCROLL);
 				break;
 			case 3: // Run away
-				engine_render_text(TILEMAP0, "RUN AWAY FROM THE\nFIGHT.", 0, 8, 20, 7, false, TEXTMODE_NOSCROLL);
+				sprintf(menu_text, "I DON'T WANNA DEAL\nWITH THIS!");
+
+				//engine_render_text(TILEMAP0, "RUN AWAY FROM THE\nFIGHT.", 0, 8, 20, 7, false, TEXTMODE_NOSCROLL);
 				break;
 			}
+
+			engine_render_text(TILEMAP0, menu_text, 0, 8, 20, 7, false, TEXTMODE_NOSCROLL);
 
 			changed_menu = false;
 		}
