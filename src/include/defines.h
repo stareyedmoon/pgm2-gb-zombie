@@ -3,6 +3,9 @@
 #ifndef _defines_h_INCLUDE
 #define _defines_h_INCLUDE
 
+#ifndef NULL
+#define NULL ((void*)0)
+#endif
 
 #define BUFFER_WIDTH DEVICE_SCREEN_BUFFER_WIDTH
 #define BUFFER_WIDTH_2 (DEVICE_SCREEN_BUFFER_WIDTH/2)

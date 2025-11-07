@@ -2,5 +2,6 @@
 out*
 
 build/
+src/include/resource
 
 !.gitignore

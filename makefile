@@ -9,6 +9,14 @@ src_c := $(wildcard ${SOURCE}/*.c) $(wildcard ${SOURCE}/*/*.c)
 obj_c := $(patsubst ${SOURCE}/%.c, ${BUILD}/%.o, ${src_c})
 bin := out.gb
 
+resrc_png := $(wildcard ${SOURCE}/resource/*.png)
+resrc_png_bin := $(patsubst ${SOURCE}/resource/%.png, ${BUILD}/resource/%.bin, ${resrc_png})
+resrc_png_c := $(patsubst ${SOURCE}/resource/%.png, ${BUILD}/resource/%.c, ${resrc_png})
+resrc_png_h := $(patsubst ${SOURCE}/resource/%.png, ${SOURCE}/include/resource/%.h, ${resrc_png})
+resrc_png_obj := $(patsubst ${SOURCE}/resource/%.png, ${BUILD}/resource/%.o, ${resrc_png})
+
+obj = ${obj_c} ${resrc_png_obj}
+
 .PHONY: help echo build clean
 
 help:
@@ -38,10 +46,28 @@ clean:
 	rm -f ${obj_c}
 
 
-${bin}: ${obj_c}
+${bin}: ${obj}
 	@mkdir -p $(dir $@)
 	${CC} ${CFLAGS} $^ -o $@
 
-${obj_c}: ${BUILD}/%.o : ${SOURCE}/%.c
+${obj_c}: ${BUILD}/%.o : ${SOURCE}/%.c ${resrc_png_h}
+	@mkdir -p $(dir $@)
+	${CC} ${CFLAGS} -c $< -o $@
+
+resrc: ${resrc_png_c} ${resrc_png_h}
+
+${resrc_png_obj}: ${BUILD}/resource/%.o : ${BUILD}/resource/%.c
 	@mkdir -p $(dir $@)
 	${CC} ${CFLAGS} -c $^ -o $@
+
+${resrc_png_c}: ${BUILD}/resource/%.c : ${BUILD}/resource/%.bin
+	@mkdir -p $(dir $@)
+	./scripts/bin_to_c.py $^ $@ /dev/null
+	
+${resrc_png_h}: ${SOURCE}/include/resource/%.h : ${BUILD}/resource/%.bin
+	@mkdir -p $(dir $@)
+	./scripts/bin_to_c.py $^ /dev/null $@
+
+${resrc_png_bin}: ${BUILD}/resource/%.bin : ${SOURCE}/resource/%.png
+	@mkdir -p $(dir $@)
+	./scripts/compress_sprite.py $^ $@
