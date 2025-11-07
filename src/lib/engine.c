@@ -141,11 +141,22 @@ void engine_render_text(uint8_t* const restrict tilemap,
 
     ASSERT(!intelligent_wrapping, "Intelligent wrapping is not yet supported.");
 
+	for (uint16_t cy = y; cy < y+max_height; cy += 1) {
+		for (uint16_t cx = x; cx < x+max_width; cx += 1) {
+			set_vram_byte(tilemap + cy*BUFFER_WIDTH + cx, char_to_tile(128, ' '));
+		}
+	}
+
     uint16_t xoff = 0;
 	uint16_t yoff = 0;
 
 	for (; *string; string++) {
-		set_vram_byte(tilemap + ((y+yoff)*BUFFER_WIDTH) + x+xoff, char_to_tile(64, *string));
+		if (*string >= 32) {
+			set_vram_byte(tilemap + ((y+yoff)*BUFFER_WIDTH) + x+xoff, char_to_tile(128, *string));
+		}
+		else if (*string == '\n') {
+			xoff = max_width - 1;
+		}
 
 		xoff += 1;
 		if (xoff == max_width) {
@@ -165,12 +176,12 @@ void engine_render_text(uint8_t* const restrict tilemap,
 					}
 				}
 				for (uint16_t cx = x; cx < (x+max_width); cx += 1) {
-					set_vram_byte(tilemap + (y + max_height - 1)*BUFFER_WIDTH + cx, char_to_tile(64, ' '));
+					set_vram_byte(tilemap + (y + max_height - 1)*BUFFER_WIDTH + cx, char_to_tile(128, ' '));
 				}
 			}
 		}
 		
-		if (joypad()) {
+		if (joypad() && e_text_speed != 0) {
 			vsync();
 		}
 		else {
