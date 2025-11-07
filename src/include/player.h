@@ -25,6 +25,15 @@
 /// @brief Quite a pathetic person. Below average in all respects. Just wanted a fourth to get to a power of two. Could be considered a rudementary "hard mode", I guess.
 #define PLAYER_ARCHETYPE_PATHETIC 3
 
+typedef struct {
+    uint8_t base_health;
+    uint8_t base_intelligence;
+    uint8_t base_strength;
+    uint8_t base_speed;
+} PlayerArchetype;
+
+extern const PlayerArchetype player_archetype[];
+
 /// @brief Representation of a Player.
 /// @note Takes 42 bytes.
 typedef struct {
