@@ -208,6 +208,13 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 			if (state == 1) state = 0;
 			if (state == 2) state = 0;
 		}
+
+		// We're running away, so at the end of the animation we exit the encounter.
+		// Since encounters are the only thing that exist at the moment, that means that for now it just stops doing anything.
+		if (state == 3 && zombie_shake_frame == 8) {
+			return;
+		}
+		
 		// When `zombie_shake_frame` is less than 8, we are currently doing an animation.
 		if (zombie_shake_frame < 8) {
 			zombie_offset = zombie_shake[zombie_shake_frame];
