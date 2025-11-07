@@ -180,6 +180,22 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 			changed_menu = true;
 		}
 
+		// Up and down change what we select in a menu
+		if ((just_pressed & J_UP) && current_menu_selection > 0) {
+			if (state == 1) {
+				set_vram_byte(TILEMAP0 + BUFFER_WIDTH*(11 + current_menu_selection), 0x80);
+				current_menu_selection -= 1;
+				set_vram_byte(TILEMAP0 + BUFFER_WIDTH*(11 + current_menu_selection), 0x9B);
+			}
+		}
+		if ((just_pressed & J_DOWN)) {
+			if (state == 1 && current_menu_selection < 3) {
+				set_vram_byte(TILEMAP0 + BUFFER_WIDTH*(11 + current_menu_selection), 0x80);
+				current_menu_selection += 1;
+				set_vram_byte(TILEMAP0 + BUFFER_WIDTH*(11 + current_menu_selection), 0x9B);
+			}
+		}
+
 		// When we have changed the menu we need to draw the one we are now in.
 		if (changed_menu) {
 			char menu_text[141];
@@ -222,14 +238,14 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 		// A goes forward.
 		if (just_pressed & J_A) {
 			if (state == 0) {
-				if (current_button == 0) state = 1;
+				if (current_button == 0) { state = 1; set_vram_byte(TILEMAP0 + BUFFER_WIDTH*(11 + current_menu_selection), 0x9B); }
 				if (current_button == 1) state = 2;
 				if (current_button == 3) { state = 3; memcpy(zombie_shake, zombie_shake_run, 8); zombie_shake_frame = 0; }
 			}
 		}
 		// B for going Back.
 		if (just_pressed & J_B) {
-			if (state == 1) state = 0;
+			if (state == 1) { state = 0; set_vram_byte(TILEMAP0 + BUFFER_WIDTH*(11 + current_menu_selection), 0x80); }
 			if (state == 2) state = 0;
 		}
 
