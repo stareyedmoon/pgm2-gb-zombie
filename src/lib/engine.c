@@ -4,7 +4,7 @@
 #include <general.h>
 #include <defines.h>
 
-#include <font.h>
+#include <resource/font.h>
 
 #include <debug.h>
 
@@ -73,7 +73,7 @@ static void load_map(uint8_t* const restrict dest, const uint8_t* const restrict
 /// @return Index of character tile
 /// @note Returns a question mark if character doesn't exist in character set
 static int8_t char_to_tile(uint8_t base_tile, char c) {
-	static const uint8_t fontmap[128] {
+	static const uint8_t fontmap[128] = {
 		0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, /* 00->07 */
 		0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, /* 08->0F */
 		0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, /* 10->17 */
@@ -94,7 +94,7 @@ static int8_t char_to_tile(uint8_t base_tile, char c) {
 
 	ASSERT(c < 128, "Out of range character.");
 
-	return basetile + fontmap[c];
+	return base_tile + fontmap[c];
 }
 
 /// @brief Updates sprite position for specified sprite. Used when either sprites or the camera moves.
@@ -123,7 +123,7 @@ void engine_init(void) {
 	SHOW_SPRITES;
 	SHOW_BKG;
 
-	set_tile_data(64, 64, font_tiles, 0x90);
+	//set_tile_data(64, 64, font_tiles, 0x90);
 
 	e_map = NULL;
 

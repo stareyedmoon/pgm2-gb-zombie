@@ -1,11 +1,11 @@
 #include <item.h>
 
 const KeyItem key_item[] = {
-
+	{"None"},
 };
 
 const ConsumableItem consumable_item[] = {
-	ConsumableItem{"COFFEE",
+	{"COFFEE",
 		-1, /* Healing amount */
 
 		 2, /* Effect duration */
@@ -13,7 +13,7 @@ const ConsumableItem consumable_item[] = {
 		 1, /* Strength effect */
 		 1  /* Speed effect */
 	},
-	ConsumableItem{"INDISTINCT DRUGS",
+	{"INDISTINCT DRUGS",
 		-10, /* Healing amount */
 
 		  8, /* Effect duration */
@@ -22,7 +22,7 @@ const ConsumableItem consumable_item[] = {
 		  2  /* Speed effect */
 	},
 
-	ConsumableItem{"BEANS",
+	{"BEANS",
 		30, /* Healing amount */
 
 		 1, /* Effect duration */
@@ -31,7 +31,7 @@ const ConsumableItem consumable_item[] = {
 		-1  /* Speed effect */
 	},
 
-	ConsumableItem{"magic SUPER JUICE",
+	{"magic SUPER JUICE",
 		127, /* Healing amount */
 
 		255, /* Effect duration */
@@ -48,7 +48,7 @@ const ConsumableItem consumable_item[] = {
 // TODO:
 // - Redo all the requirement, weight, and damage numbers
 const WeaponItem weapon_item[] = {
-	WeaponItem{"FISTS",
+	{"FISTS",
 		"CAN'T OUTLAW FISTS.",
 		0, /* Intelligence requirement */
 		0, /* Strength requirement */
@@ -56,7 +56,7 @@ const WeaponItem weapon_item[] = {
 		0, /* Damage */
 		DAMAGE_TYPE_BLUNT
 	},
-	WeaponItem{"BRASS KNUCKLES",
+	{"BRASS KNUCKLES",
 		"THEY'RE IN YOUR\nBACK POCKET.",
 		0, /* Intelligence requirement */
 		0, /* Strength requirement */
@@ -64,7 +64,7 @@ const WeaponItem weapon_item[] = {
 		1, /* Damage */
 		DAMAGE_TYPE_BLUNT
 	},
-	WeaponItem{"DOOM FISTS",
+	{"DOOM FISTS",
 		"RIP AND TEAR.",
 		  0, /* Intelligence requirement */
 		255, /* Strength requirement */
@@ -74,7 +74,7 @@ const WeaponItem weapon_item[] = {
 	},
 
 	// Club series
-	WeaponItem{"THICK STICK",
+	{"THICK STICK",
 		"NOT TERRIBLY\nEFFECTIVE.",
 		0, /* Intelligence requirement */
 		0, /* Strength requirement */
@@ -82,7 +82,7 @@ const WeaponItem weapon_item[] = {
 		2, /* Damage */
 		DAMAGE_TYPE_BLUNT
 	},
-	WeaponItem{"CLUB",
+	{"CLUB",
 		"",
 		0, /* Intelligence requirement */
 		2, /* Strength requirement */
@@ -90,7 +90,7 @@ const WeaponItem weapon_item[] = {
 		5, /* Damage */
 		DAMAGE_TYPE_BLUNT
 	},
-	WeaponItem{"IRON BASEBALL BAT",
+	{"IRON BASEBALL BAT",
 		"OUCH.",
 		0, /* Intelligence requirement */
 		2, /* Strength requirement */
@@ -98,7 +98,7 @@ const WeaponItem weapon_item[] = {
 		5, /* Damage */
 		DAMAGE_TYPE_BLUNT
 	},
-	WeaponItem{"MACE",
+	{"MACE",
 		"",
 		0, /* Intelligence requirement */
 		2, /* Strength requirement */
@@ -106,7 +106,7 @@ const WeaponItem weapon_item[] = {
 		5, /* Damage */
 		DAMAGE_TYPE_BLUNT
 	},
-	WeaponItem{"COMICLY OVRSZD SPOON",
+	{"COMICLY OVRSZD SPOON",
 		"IT'S ABOUT seventy\nkilometers TALL.",
 		  5, /* Intelligence requirement */
 		250, /* Strength requirement */
@@ -116,7 +116,7 @@ const WeaponItem weapon_item[] = {
 	},
 
 	// Knife series
-	WeaponItem{"EATING KNIFE",
+	{"EATING KNIFE",
 		"WHAT'S FOR DINNER?\nit's you.",
 		1, /* Intelligence requirement */
 		0, /* Strength requirement */
@@ -124,7 +124,7 @@ const WeaponItem weapon_item[] = {
 		3, /* Damage */
 		DAMAGE_TYPE_STAB
 	},
-	WeaponItem{"DULL KNIFE",
+	{"DULL KNIFE",
 		"",
 		1, /* Intelligence requirement */
 		2, /* Strength requirement */
@@ -132,7 +132,7 @@ const WeaponItem weapon_item[] = {
 		4, /* Damage */
 		DAMAGE_TYPE_STAB
 	},
-	WeaponItem{"KITCHEN KNIFE",
+	{"KITCHEN KNIFE",
 		"WHERE'S THE\nchocolate?",
 		2, /* Intelligence requirement */
 		1, /* Strength requirement */
@@ -140,7 +140,7 @@ const WeaponItem weapon_item[] = {
 		7, /* Damage */
 		DAMAGE_TYPE_STAB
 	},
-	WeaponItem{"STANDARD SWTCH KNIFE",
+	{"STANDARD SWTCH KNIFE",
 		"THE foundation WON'TMISS IT.",
 		230, /* Intelligence requirement */
 		 25, /* Strength requirement */
@@ -150,7 +150,7 @@ const WeaponItem weapon_item[] = {
 	},
 
 	// Shortsword series
-	WeaponItem{"BROKEN SHORTSWORD",
+	{"BROKEN SHORTSWORD",
 		"EXTRA SHORT.",
 		 9, /* Intelligence requirement */
 		 4, /* Strength requirement */
@@ -158,7 +158,7 @@ const WeaponItem weapon_item[] = {
 		 8, /* Damage */
 		DAMAGE_TYPE_SLASH
 	},
-	WeaponItem{"REPAIRED SHORTSWORD",
+	{"REPAIRED SHORTSWORD",
 		"QUITE BLUNT.",
 		23, /* Intelligence requirement */
 		12, /* Strength requirement */
@@ -166,7 +166,7 @@ const WeaponItem weapon_item[] = {
 		17, /* Damage */
 		DAMAGE_TYPE_SLASH
 	},
-	WeaponItem{"SHORTSWORD",
+	{"SHORTSWORD",
 		"IT'S bronze FOR SOMEREASON.",
 		29, /* Intelligence requirement */
 		19, /* Strength requirement */
@@ -174,7 +174,7 @@ const WeaponItem weapon_item[] = {
 		28, /* Damage */
 		DAMAGE_TYPE_SLASH
 	},
-	WeaponItem{"STEEL SHORTSWORD",
+	{"STEEL SHORTSWORD",
 		"BETTER THAN bronze.",
 		47, /* Intelligence requirement */
 		27, /* Strength requirement */
@@ -182,7 +182,7 @@ const WeaponItem weapon_item[] = {
 		55, /* Damage */
 		DAMAGE_TYPE_SLASH
 	},
-	WeaponItem{"TUNGSTEN SHORTSWORD",
+	{"TUNGSTEN SHORTSWORD",
 		"HOW DURABLE IS THIS\nTHING, ANYWAY?",
 		 68, /* Intelligence requirement */
 		 35, /* Strength requirement */
@@ -190,7 +190,7 @@ const WeaponItem weapon_item[] = {
 		100, /* Damage */
 		DAMAGE_TYPE_SLASH
 	},
-	WeaponItem{"sefirot'S SHORTSWORD",
+	{"sefirot'S SHORTSWORD",
 		"ACTUALLY QUITE LONG.",
 		180, /* Intelligence requirement */
 		 75, /* Strength requirement */
@@ -200,7 +200,7 @@ const WeaponItem weapon_item[] = {
 	},
 
 	// Arrow series
-	WeaponItem{"CLASSIC BOW",
+	{"CLASSIC BOW",
 		"DON'T ASK WHERE THE\nARROWS COME FROM.",
 		10, /* Intelligence requirement */
 		 5, /* Strength requirement */
@@ -208,7 +208,7 @@ const WeaponItem weapon_item[] = {
 		12, /* Damage */
 		DAMAGE_TYPE_PIERCING
 	},
-	WeaponItem{"LONGBOW",
+	{"LONGBOW",
 		"NOT FOR USE WITH A\nCELLO.",
 		13, /* Intelligence requirement */
 		 7, /* Strength requirement */
@@ -216,7 +216,7 @@ const WeaponItem weapon_item[] = {
 		21, /* Damage */
 		DAMAGE_TYPE_PIERCING
 	},
-	WeaponItem{"COMPOUND BOW",
+	{"COMPOUND BOW",
 		"IT'S A BOW MADE OUT\nOF COMPOUNDS.",
 		18, /* Intelligence requirement */
 		13, /* Strength requirement */
@@ -224,7 +224,7 @@ const WeaponItem weapon_item[] = {
 		32, /* Damage */
 		DAMAGE_TYPE_PIERCING
 	},
-	WeaponItem{"CROSSBOW",
+	{"CROSSBOW",
 		"GOOD FOR SHOOTING A\nhamon user.",
 		25, /* Intelligence requirement */
 		19, /* Strength requirement */
@@ -232,7 +232,7 @@ const WeaponItem weapon_item[] = {
 		58, /* Damage */
 		DAMAGE_TYPE_PIERCING
 	},
-	WeaponItem{"REPEATER",
+	{"REPEATER",
 		"THESE ARE STILL\nBEING MADE?",
 		40, /* Intelligence requirement */
 		24, /* Strength requirement */
@@ -240,7 +240,7 @@ const WeaponItem weapon_item[] = {
 		92, /* Damage */
 		DAMAGE_TYPE_PIERCING
 	},
-	WeaponItem{"LARGE CROSSBOW",
+	{"LARGE CROSSBOW",
 		"GOOD FOR SHOOTING ANatmospheric rift.",
 		 63, /* Intelligence requirement */
 		 40, /* Strength requirement */
@@ -248,7 +248,7 @@ const WeaponItem weapon_item[] = {
 		150, /* Damage */
 		DAMAGE_TYPE_PIERCING
 	},
-	WeaponItem{"eventide",
+	{"eventide",
 		"LIKE BEING SHOT BY Arainbow.",
 		163, /* Intelligence requirement */
 		 92, /* Strength requirement */
@@ -258,7 +258,7 @@ const WeaponItem weapon_item[] = {
 	},
 
 	// Gun series
-	WeaponItem{"PISTOL",
+	{"PISTOL",
 		"THE WEIGHT IS MOSTLYSPIRITUAL.",
 		 0, /* Intelligence requirement */
 		 0, /* Strength requirement */
@@ -266,7 +266,7 @@ const WeaponItem weapon_item[] = {
 		20, /* Damage */
 		DAMAGE_TYPE_PIERCING
 	},
-	WeaponItem{"FACTORY GUN",
+	{"FACTORY GUN",
 		"THE bullets ARE MADEOUT OF teeth.",
 		 65, /* Intelligence requirement */
 		190, /* Strength requirement */
@@ -277,7 +277,7 @@ const WeaponItem weapon_item[] = {
 };
 
 const ArmorItem armor_item[] = {
-	ArmorItem{"CLOTHES",
+	{"CLOTHES",
 		"NOT MUCH FOR PROTECTION.",
 
 		0, /* Weight */
@@ -287,7 +287,7 @@ const ArmorItem armor_item[] = {
 		1, /* Stab protection */
 		1  /* Slash protection */
 	},
-	ArmorItem{"LIGHT BODYARMOR",
+	{"LIGHT BODYARMOR",
 		"DON'T WORRY, YOU\nSTILL HAVE CLOTHES.",
 
 		4, /* Weight */
@@ -297,7 +297,7 @@ const ArmorItem armor_item[] = {
 		3, /* Stab protection */
 		6  /* Slash protection */
 	},
-	ArmorItem{"CHAINMAIL",
+	{"CHAINMAIL",
 		"DON'T GET SHOT :)",
 
 		6, /* Weight */
@@ -307,7 +307,7 @@ const ArmorItem armor_item[] = {
 		5, /* Stab protection */
 		8  /* Slash protection */
 	},
-	ArmorItem{"FULLPLATE ARMOR",
+	{"FULLPLATE ARMOR",
 		"A LITTLE HEAVY.",
 
 		40, /* Weight */
