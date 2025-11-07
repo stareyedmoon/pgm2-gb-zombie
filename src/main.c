@@ -11,12 +11,9 @@
 #include <resource/zombie.h>
 
 void main(void) {
-    while (joypad()) rand8();
-    while (!joypad()) rand8();
-
     engine_init();
 
-    Player player = player_new(NULL, PLAYER_ARCHETYPE_BASIC);
+    Player player = player_new(NULL, PLAYER_ARCHETYPE_STRONGMAN);
     Zombie zombie = zombie_new(ZOMBIE_TYPE_JONNY_BIGARM, 0);
 
 
