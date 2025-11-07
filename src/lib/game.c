@@ -25,13 +25,13 @@ void game_main(void) {
 }
 
 void lcd_int_handler(void) {
-	if (LCD_LYC == 128) {
+	if (LCD_LYC == 127) {
 		LCD_SCX = 4;
 		LCD_LYC = 144;
 	}
 	else if (LCD_LYC == 144) {
 		LCD_SCX = 0;
-		LCD_LYC = 128;
+		LCD_LYC = 127;
 	}
 }
 void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_sprite) {
@@ -62,11 +62,11 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 		bool select = current_button == i;
 		uint8_t icon = i * 4;
 		
-		set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + ioff + 0, 0x00);
+		set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + ioff + 0, 0x04);
 		set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + ioff + 1, 0x05 + (select?8:0));
 		set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + ioff + 2, 0x05 + (select?8:0));
 		set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + ioff + 3, 0x05 + (select?8:0));
-		set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + ioff + 4, 0x00);
+		set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + ioff + 4, 0x04);
 		
 		// These are 1 further to the right because the bottom two tiles is 1 further to the right for alignment reasons.
 		set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + ioff + 1, 0x06 + (select?8:0));
@@ -75,25 +75,35 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 		set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + ioff + 4, 0x07 + (select?8:0));
 		set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + ioff + 5, 0x00);
 
-		set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + ioff + 1, 0x06 + (select?8:0));
+		set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + ioff + 1, 0x02 + (select?8:0));
 		set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + ioff + 2, 0x11 + (select?16:0) + icon);
 		set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + ioff + 3, 0x13 + (select?16:0) + icon);
-		set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + ioff + 4, 0x07 + (select?8:0));
+		set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + ioff + 4, 0x03 + (select?8:0));
 		set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + ioff + 5, 0x00);
 		
 	}
 
-	decompress_sprite(TILEBLOCK2 + 0x0000, encounter_ui_data);
-	//decompress_sprite(TILEBLOCK2 + 0x0400, enemy_sprite);
-	for (uint8_t* p = TILEBLOCK2 + 0x0400; p++ != TILEBLOCK2 + 0x0700; set_vram_byte(p, rand8()));
 	decompress_sprite(TILEBLOCK1 + 0x0000, font_data);
+	decompress_sprite(TILEBLOCK2 + 0x0000, encounter_ui_data);
+	decompress_sprite(TILEBLOCK2 + 0x0400, enemy_sprite);
+
+
+	// There's an interrupt here so that the bottom 2 tiles are offset by 4 pixels.
+	// The reason for this is that this lets me save a couple tiles on the icons.
+	disable_interrupts();
 
 	LCD_SCY = 0;
-	LCD_LYC = 128;
-	add_LCD(lcd_int_handler);
+	LCD_LYC = 127;
 
-	LCD_STAT &= 0x83;
-	LCD_STAT |= 0x40;
+	CRITICAL {
+		LCD_STAT &= 0x83;
+		LCD_STAT |= 0x40;
+		add_LCD(lcd_int_handler);
+		add_LCD(nowait_int_handler);
+	}
+
+	enable_interrupts();
+	set_interrupts(IE_REG | LCD_IFLAG);
 
 
 	while (true) {
