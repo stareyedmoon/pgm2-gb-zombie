@@ -229,7 +229,7 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 			char menu_text[141];
 			switch (current_button) {
 				case 0: // Fight menu
-				sprintf(menu_text, "%s\n%u OUT OF %u HP\n\n %s\n %s\n %s\n %s", "JON BIGRM", enemy->health, enemy->max_health, "ATTACK A", "ATTACK B", "ATTACK C", "ATTACK D");
+				sprintf(menu_text, "%s\n%u/%u HP\n\n %s\n %s\n %s\n %s", "JON BIGRM", enemy->health, enemy->max_health, "ATTACK A", "ATTACK B", "ATTACK C", "ATTACK D");
 				current_menu_selection = 0;
 				
 				//engine_render_text(TILEMAP0, "JON BIGRM\n???/??? HP\n\n-", 0, 8, 20, 7, false, TEXTMODE_NOSCROLL);
