@@ -1,8 +1,0 @@
-[ ] - Change map format to use only 4 bits per tile instead of 8 bits by dynamically choosing tiles based on the surrounding tiles
-[ ] - Add some way to move between different maps
-[ ] - Add combat and some way to enter it
-[ ] - Add enemies (zombies, obviously)
-[ ] - If necessary, add map and texture compression
-[ ] - Replace the devart with something that hopefully actually looks somewhat decent
-[ ] - Design all the maps and such
-[ ] - Probably add some kind of inventory system and equipment system
