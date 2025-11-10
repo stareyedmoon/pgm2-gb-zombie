@@ -24,6 +24,14 @@ uint8_t rand8(void) {
 	return g_random_a;
 }
 
+uint8_t flip_byte(uint8_t value) {
+	static const uint8_t flip_lut[16] = {
+		0x0, 0x8, 0x4, 0xC, 0x2, 0xA, 0x6, 0xE, 0x1, 0x9, 0x5, 0xD, 0x3, 0xB, 0x7, 0xF
+	};
+
+	return (flip_lut[value & 0x0F] << 4) | flip_lut[value >> 4];
+}
+
 #define READ_BIT(src, off) (src[off/8]&(1<<(7-(off++%8)))?1:0)
 
 static bool read_bit(uint8_t* src, uint16_t* offset) {

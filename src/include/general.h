@@ -6,6 +6,10 @@
 /// @brief Generates a random 8-bit number.
 uint8_t rand8(void);
 
+/// @brief Flip all the bits in a byte.
+uint8_t flip_byte(uint8_t value);
+
+
 // 2b tiles. This is the default, and allows for four levels of brighness (or three for sprites).
 #define TILE_FORMAT_2b 0
 // 1b tiles. Takes half as many bits as 2b, but only allows for two levels of brightness.

@@ -143,7 +143,7 @@ void engine_render_text(uint8_t* const restrict tilemap,
 
 	for (uint16_t cy = y; cy < y+max_height; cy += 1) {
 		for (uint16_t cx = x; cx < x+max_width; cx += 1) {
-			set_vram_byte(tilemap + cy*BUFFER_WIDTH + cx, char_to_tile(128, ' '));
+			set_vram_byte(tilemap + cy*BUFFER_WIDTH + cx, char_to_tile(80, ' '));
 		}
 	}
 
@@ -152,7 +152,7 @@ void engine_render_text(uint8_t* const restrict tilemap,
 
 	for (; *string; string++) {
 		if (*string >= 32) {
-			set_vram_byte(tilemap + ((y+yoff)*BUFFER_WIDTH) + x+xoff, char_to_tile(128, *string));
+			set_vram_byte(tilemap + ((y+yoff)*BUFFER_WIDTH) + x+xoff, char_to_tile(80, *string));
 		}
 		else if (*string == '\n') {
 			xoff = max_width - 1;
@@ -176,7 +176,7 @@ void engine_render_text(uint8_t* const restrict tilemap,
 					}
 				}
 				for (uint16_t cx = x; cx < (x+max_width); cx += 1) {
-					set_vram_byte(tilemap + (y + max_height - 1)*BUFFER_WIDTH + cx, char_to_tile(128, ' '));
+					set_vram_byte(tilemap + (y + max_height - 1)*BUFFER_WIDTH + cx, char_to_tile(80, ' '));
 				}
 			}
 		}
