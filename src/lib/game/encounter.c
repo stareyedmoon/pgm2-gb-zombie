@@ -21,6 +21,10 @@
 #include <resource/encounter_ui.h>
 #include <resource/font.h>
 
+// The way speed works is that it's added to the counter, and when it reaches 255 you get a turn.
+// Pretty much copied from 'In Stars And Time'.
+static uint8_t encounter_turn_counter_player = 0;
+static uint8_t encounter_turn_counter_enemy = 0;
 
 
 static int8_t encounter_zombie_scroll = 0;
@@ -42,6 +46,26 @@ static void lcd_int_handler(void) {
 	enable_interrupts();
 }
 
+static void enable_lcd_interrupt(void) {
+    disable_interrupts();
+	
+	LCD_SCY = 0;
+	LCD_LYC = 0;
+	
+	CRITICAL {
+		LCD_STAT &= 0x83;
+		LCD_STAT |= 0x40;
+		add_LCD(lcd_int_handler);
+		add_LCD(nowait_int_handler);
+	}
+	
+	enable_interrupts();
+	set_interrupts(IE_REG | LCD_IFLAG);
+}
+static void disable_lcd_interrupt(void) {
+
+}
+
 static void draw_buttons(void) {
 
 	// Temporary
@@ -59,21 +83,8 @@ static void draw_buttons(void) {
 		}
 	}
 }
-
-static void swap_button_color(void) {
-	uint16_t offset_start = (uint16_t)(0x10 + encounter_menu_button * 4) * 16;
-
-	for (uint16_t i = 0; i < 128; i += 2) {
-		uint8_t a = get_vram_byte(TILEBLOCK2 + offset_start + i);
-		uint8_t b = get_vram_byte(TILEBLOCK2 + offset_start + i + 1);
-
-		set_vram_byte(TILEBLOCK2 + offset_start + i, b);
-		set_vram_byte(TILEBLOCK2 + offset_start + i + 1, a);
-	}
-}
-
-void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_sprite) {
-	for (uint16_t y = 0; y < 7; y += 1) {
+static void draw_initial_menu(void) {
+    for (uint16_t y = 0; y < 7; y += 1) {
 		for (uint16_t x = 0; x < 32; x += 1) {
 			set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x, 0x08);
 			set_vram_byte(TILEMAP0 + (y+8)*BUFFER_WIDTH + x, 0x50);
@@ -92,35 +103,55 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
     }
 
     draw_buttons();
+}
 
-	decompress_sprite(TILEBLOCK2 + 0x0000 /* 00-1F */, encounter_ui_data);
+static void swap_button_color(void) {
+	uint16_t offset_start = (uint16_t)(0x10 + encounter_menu_button * 4) * 16;
+
+	for (uint16_t i = 0; i < 128; i += 2) {
+		uint8_t a = get_vram_byte(TILEBLOCK2 + offset_start + i);
+		uint8_t b = get_vram_byte(TILEBLOCK2 + offset_start + i + 1);
+
+		set_vram_byte(TILEBLOCK2 + offset_start + i, b);
+		set_vram_byte(TILEBLOCK2 + offset_start + i + 1, a);
+	}
+}
+
+void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_sprite) {
+    draw_initial_menu();
+
+    decompress_sprite(TILEBLOCK2 + 0x0000 /* 00-1F */, encounter_ui_data);
 	decompress_sprite(TILEBLOCK2 + 0x0200 /* 20-4F */, enemy_sprite);
 	decompress_sprite(TILEBLOCK2 + 0x0500 /* 50-7F */, font_data);
 
+    enable_lcd_interrupt();
+
+
+    encounter_turn_counter_player = 0;
+    encounter_turn_counter_enemy = 0;
 	encounter_menu_button = 0;
 
-	disable_interrupts();
-	
-	LCD_SCY = 0;
-	LCD_LYC = 0;
-	
-	CRITICAL {
-		LCD_STAT &= 0x83;
-		LCD_STAT |= 0x40;
-		add_LCD(lcd_int_handler);
-		add_LCD(nowait_int_handler);
-	}
-	
-	enable_interrupts();
-	set_interrupts(IE_REG | LCD_IFLAG);
-
 	uint8_t prev_joy = 0;
+
+    uint8_t player_effective_speed = player->speed;
+    uint8_t enemy_effective_speed = enemy->speed;
 
 	while (true) {
 		uint8_t cur_joy = joypad();
 		// Bitmaps of which buttons were just pressed and released.
 		uint8_t just_pressed = cur_joy & ~prev_joy;
 		uint8_t just_released = prev_joy & ~cur_joy;
+
+        encounter_turn_counter_player += player_effective_speed;
+        encounter_turn_counter_enemy += enemy_effective_speed;
+
+        if (encounter_turn_counter_player < player_effective_speed) {
+            // Players turn
+        }
+        if (encounter_turn_counter_enemy < enemy_effective_speed) {
+            // Enemys turn
+        }
+
 
 		if (just_pressed & J_LEFT && encounter_menu_button > 0) {
 			encounter_menu_button -= 1;
