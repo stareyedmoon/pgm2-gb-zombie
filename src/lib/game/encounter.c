@@ -35,14 +35,28 @@ static void lcd_int_handler(void) {
 	disable_interrupts();
 	if (LCD_LYC == 0) {
 		LCD_SCX = encounter_zombie_scroll;
+        LCD_SCY = 0;
 
         LCD_LYC = 60;
 	}
 	else if (LCD_LYC == 60) {
 		LCD_SCX = 0;
+        LCD_SCY = 3;
+
+        LCD_LYC = 68;
+	}
+    else if (LCD_LYC == 68) {
+        LCD_SCX = 0;
+        LCD_SCY = 8;
+
+        LCD_LYC = 124;
+    }
+    else if (LCD_LYC == 124) {
+        LCD_SCX = 0;
+        LCD_SCY = 17;
 
         LCD_LYC = 0;
-	}
+    }
 	enable_interrupts();
 }
 
@@ -75,34 +89,61 @@ static void draw_buttons(void) {
 		0x12, 0x13, 0x0C, 0x16, 0x17, 0x1A, 0x1B, 0x04, 0x1E, 0x1F,
 	};
 
-	for (uint16_t y = 15; y < 18; y += 1) {
+	for (uint16_t y = 7; y < 18; y += 1) {
 		for (uint16_t x = 0; x < 10; x += 1) {
-			uint8_t i = x + (y - 15) * 10;
+			uint8_t i = x + (y - 7) * 10;
 
-			set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x, tile_lut[i]);
+			set_vram_byte(TILEMAP1 + y*BUFFER_WIDTH + x, tile_lut[i]);
 		}
 	}
 }
-static void draw_initial_menu(void) {
-    for (uint16_t y = 0; y < 7; y += 1) {
-		for (uint16_t x = 0; x < 32; x += 1) {
-			set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x, 0x08);
-			set_vram_byte(TILEMAP0 + (y+8)*BUFFER_WIDTH + x, 0x50);
-		}
-	}
-	for (uint16_t x = 0; x < 32; x += 1) {
-		set_vram_byte(TILEMAP0 + 7*BUFFER_WIDTH + x, 0x09);
-		set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + x, 0x01);
-		set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + x, 0x00);
-		set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + x, 0x00);
-	}
-    for (uint16_t y = 0; y < 8; y += 1) {
-        for (uint16_t x = 7; x < 13; x += 1) {
-            set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x, 0x20 + y*6 + x - 7);
+static void draw_initial_ui(void) {
+    //LCD_CTRL |= 0x20; // Enable window layer
+    //LCD_WX = 7;
+    //LCD_WY = 64;
+
+    for (uint16_t y = 0; y < 9; y += 1) {
+        for (uint16_t x = 0; x < BUFFER_WIDTH; x += 1) {
+            set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x, 0x00);
+        }
+    }
+    for (uint16_t y = 10; y < 16; y += 1) {
+        for (uint16_t x = 0; x < BUFFER_WIDTH; x += 1) {
+            set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x, 0x80);
+        }
+    }
+    for (uint16_t y = 17; y < BUFFER_HEIGHT; y += 1) {
+        for (uint16_t x = 0; x < BUFFER_HEIGHT; x += 1) {
+            set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x, 0x08);
         }
     }
 
-    draw_buttons();
+    for (uint16_t x = 0; x < 32; x += 1) {
+        set_vram_byte(TILEMAP0 + 9*BUFFER_WIDTH + x, 0x02);
+        set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + x, 0x0A);
+    }
+    for (uint16_t x = 0; x < 8; x += 1) {
+        set_vram_byte(TILEMAP0 + 8*BUFFER_WIDTH + x + 6, 0x30 + x);
+        set_vram_byte(TILEMAP0 + 19*BUFFER_WIDTH + x + 6, 0x38 + x);
+    }
+
+    set_vram_byte(TILEMAP0 + 8*BUFFER_WIDTH + 5, 0x1E);
+    set_vram_byte(TILEMAP0 + 8*BUFFER_WIDTH + 14, 0x1F);
+    set_vram_byte(TILEMAP0 + 19*BUFFER_WIDTH + 5, 0x16);
+    set_vram_byte(TILEMAP0 + 19*BUFFER_WIDTH + 14, 0x17);
+
+    set_vram_byte(TILEMAP0 + 9*BUFFER_WIDTH + 0, 0x01);
+    set_vram_byte(TILEMAP0 + 9*BUFFER_WIDTH + 19, 0x03);
+    set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 0, 0x09);
+    set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 19, 0x0B);
+
+    for (uint16_t y = 0; y < 8; y += 1) {
+        for (uint16_t x = 0; x < 6; x += 1) {
+            set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x + 7, 0x50 + y*6 + x);
+        }
+    }
+
+    //draw_buttons();
 }
 
 static void swap_button_color(void) {
@@ -117,12 +158,105 @@ static void swap_button_color(void) {
 	}
 }
 
-void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_sprite) {
-    draw_initial_menu();
+static void set_player_health_bar(uint8_t health, uint8_t max_health) {}
+static void set_enemy_health_bar(uint8_t health, uint8_t max_health) {}
 
-    decompress_sprite(TILEBLOCK2 + 0x0000 /* 00-1F */, encounter_ui_data);
-	decompress_sprite(TILEBLOCK2 + 0x0200 /* 20-4F */, enemy_sprite);
-	decompress_sprite(TILEBLOCK2 + 0x0500 /* 50-7F */, font_data);
+static void set_player_turn_bar(bool full) {
+    if (full) {
+        for (uint8_t i = 0; i < 8; i += 1) {
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 9, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 11, 0x00);
+        }
+    }
+    else {
+        uint8_t full_bars = encounter_turn_counter_player / 32;
+        uint8_t partial = (0xFF) >> ((encounter_turn_counter_player / 4) % 8);
+
+        for (uint8_t i = 0; i < full_bars; i += 1) {
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 9, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 11, 0x00);
+        }
+        set_vram_byte(TILEBLOCK2 + 0x0380 + full_bars*16 + 9, partial);
+        set_vram_byte(TILEBLOCK2 + 0x0380 + full_bars*16 + 11, partial);
+        for (uint8_t i = full_bars + 1; i < 8; i += 1) {
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 9, 0xFF);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 11, 0xFF);
+        }
+    }
+}
+static void set_enemy_turn_bar(bool full) {
+    if (full) {
+        for (uint8_t i = 0; i < 8; i += 1) {
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 9, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 11, 0x00);
+        }
+    }
+    else {
+        uint8_t full_bars = encounter_turn_counter_enemy / 32;
+        uint8_t partial = (0xFF) >> ((encounter_turn_counter_enemy / 4) % 8);
+
+        for (uint8_t i = 0; i < full_bars; i += 1) {
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 9, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 11, 0x00);
+        }
+        set_vram_byte(TILEBLOCK2 + 0x0300 + full_bars*16 + 9, partial);
+        set_vram_byte(TILEBLOCK2 + 0x0300 + full_bars*16 + 11, partial);
+        for (uint8_t i = full_bars + 1; i < 8; i += 1) {
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 9, 0xFF);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 11, 0xFF);
+        }
+    }
+}
+
+static void player_turn(Encounterable* player, Encounterable* enemy) {
+    encounter_turn_counter_player -= 128;
+
+    for (uint8_t i = 0; i < 10; i += 1) vsync();
+}
+static void enemy_turn(Encounterable* player, Encounterable* enemy) {
+    encounter_turn_counter_enemy -= 128;
+
+    for (uint8_t i = 0; i < 10; i += 1) vsync();
+}
+
+void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_sprite) {
+    draw_initial_ui();
+
+    decompress_sprite(TILEBLOCK2 + 0x0000 /* 00-2F */, encounter_ui_data);
+    /* 30-3F reserved for health and turn bars */
+    for (uint8_t i = 0; i < 8; i += 1) {
+        for (uint8_t j = 0; j < 8; j += 3) {
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + j*2 + 0, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + j*2 + 1, 0xFF);
+
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + j*2 + 0, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + j*2 + 1, 0xFF);
+        }
+
+        for (uint8_t j = 1; j < 3; j += 1) {
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + j*2 + 0, 0xFF);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + j*2 + 1, 0xFF);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + j*2 + 6, 0xFF);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + j*2 + 7, 0xFF);
+
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + j*2 + 0, 0xFF);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + j*2 + 1, 0xFF);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + j*2 + 6, 0xFF);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + j*2 + 7, 0xFF);
+        }
+
+        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 14, 0x00);
+        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 15, 0x00);
+
+        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 14, 0xFF);
+        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 15, 0xFF);
+    }
+	decompress_sprite(TILEBLOCK2 + 0x0500 /* 50-7F */, enemy_sprite);
+	decompress_sprite(TILEBLOCK1 + 0x0000 /* 80-AF */, font_data);
+    set_player_health_bar(player->health, player->max_health);
+    set_enemy_health_bar(enemy->health, enemy->max_health);
+    set_player_turn_bar(false);
+    set_enemy_turn_bar(false);
 
     enable_lcd_interrupt();
 
@@ -139,105 +273,29 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 	while (true) {
 		uint8_t cur_joy = joypad();
 		// Bitmaps of which buttons were just pressed and released.
-		uint8_t just_pressed = cur_joy & ~prev_joy;
+		uint8_t just_pressed = cur_joy & ~prev_joy; 
 		uint8_t just_released = prev_joy & ~cur_joy;
 
         encounter_turn_counter_player += player_effective_speed;
         encounter_turn_counter_enemy += enemy_effective_speed;
 
+        // When an integer overflows on an add, the result is always smaller than the value added.
         if (encounter_turn_counter_player < player_effective_speed) {
-            // Players turn
+            set_player_turn_bar(true);
+            player_turn(player, enemy);
         }
+        set_player_turn_bar(false);
         if (encounter_turn_counter_enemy < enemy_effective_speed) {
-            // Enemys turn
+            set_enemy_turn_bar(true);
+            enemy_turn(player, enemy);
         }
-
+        set_enemy_turn_bar(false);
 
 		if (just_pressed & J_LEFT && encounter_menu_button > 0) {
 			encounter_menu_button -= 1;
-			swap_button_color();
-            for (uint8_t i = 0xA0; i < 0xD0; i += 1) {
-                set_vram_byte(TILEBLOCK2 + i, flip_byte(get_vram_byte(TILEBLOCK2 + i)));
-            }
-
-            switch (encounter_menu_button) {
-            case 0:
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 0, 0x0D);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 1, 0x0E);
-                //set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 2, 0x12);
-                //set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 2, 0x13);
-                //set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 2, 0x14);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 3, 0x06);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 4, 0x07);
-                break;
-            case 1:
-                //set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 2, 0x1A);
-                //set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 2, 0x1B);
-                //set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 2, 0x1C);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 2, 0x0A);
-                set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 2, 0x0B);
-                set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 2, 0x0C);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 3, 0x0E);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 4, 0x0F);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 5, 0x05);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 6, 0x06);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 7, 0x02);
-                set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 7, 0x03);
-                set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 7, 0x04);
-                break;
-            case 2:
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 5, 0x0D);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 6, 0x0E);
-                //set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 7, 0x12);
-                //set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 7, 0x13);
-                //set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 7, 0x14);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 8, 0x06);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 9, 0x07);
-                break;
-            }
 		}
 		if (just_pressed & J_RIGHT && encounter_menu_button < 3) {
-			swap_button_color();
-            for (uint8_t i = 0xA0; i < 0xD0; i += 1) {
-                set_vram_byte(TILEBLOCK2 + i, flip_byte(get_vram_byte(TILEBLOCK2 + i)));
-            }
 			encounter_menu_button += 1;
-
-            switch (encounter_menu_button) {
-            case 1:
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 0, 0x05);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 1, 0x06);
-                //set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 2, 0x1A);
-                //set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 2, 0x1B);
-                //set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 2, 0x1C);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 3, 0x0E);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 4, 0x0F);
-                break;
-            case 2:
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 2, 0x02);
-                set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 2, 0x03);
-                set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 2, 0x04);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 3, 0x06);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 4, 0x07);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 5, 0x0D);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 6, 0x0E);
-                //set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 7, 0x12);
-                //set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 7, 0x13);
-                //set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 7, 0x14);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 7, 0x0A);
-                set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 7, 0x0B);
-                set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 7, 0x0C);
-                break;
-            case 3:
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 5, 0x05);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 6, 0x06);
-                //set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 7, 0x1A);
-                //set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 7, 0x1B);
-                //set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 7, 0x1C);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 8, 0x0E);
-                set_vram_byte(TILEMAP0 + 15*BUFFER_WIDTH + 9, 0x0F);
-                break;
-            }
         }
 
 		prev_joy = cur_joy;

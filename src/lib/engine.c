@@ -119,9 +119,11 @@ void update_sprite(uint8_t sprite) {
 \******************************************************************************/
 
 void engine_init(void) {
-	SPRITES_8x16;
-	SHOW_SPRITES;
-	SHOW_BKG;
+	//SPRITES_8x16;
+	//SHOW_SPRITES;
+	//SHOW_BKG;
+
+	LCD_CTRL |= 0b01000111;
 
 	//set_tile_data(64, 64, font_tiles, 0x90);
 

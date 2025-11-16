@@ -2,7 +2,7 @@
 
 
 const ZombieType zombie_type[] = {
-	{"JON BIGRM", 18, 8, 4},
+	{"JON BIGRM", 18, 8, 3},
 };
 
 Zombie zombie_new(uint8_t type, uint8_t difficulty) {
