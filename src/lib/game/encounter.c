@@ -378,7 +378,7 @@ static uint8_t calculate_effective_speed(EncounterEntity* entity) {
 
     int16_t effective_speed = speed - SATURATING_SUB(weight, strength);
 
-    return MIN(MAX(effective_speed, 0), 255);
+    return MIN(MAX(effective_speed, 1), 255);
 }
 
 //static uint8_t calculate_damage(EncounterEntity* attacker, EncounterEntity* target) {}
