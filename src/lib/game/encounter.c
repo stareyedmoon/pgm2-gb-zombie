@@ -21,6 +21,23 @@
 #include <resource/encounter_ui.h>
 #include <resource/font.h>
 
+
+
+// Data types
+
+/// @brief All data for an entity used in an encounter.
+typedef struct {
+    Encounterable* encounterable;
+
+    uint8_t effect_duration;
+    int8_t intelligence_effect;
+    int8_t strength_effect;
+    int8_t speed_effect;
+
+    bool is_defending;
+} EncounterEntity;
+
+
 // The way speed works is that it's added to the counter, and when it reaches 255 you get a turn.
 // Pretty much copied from 'In Stars And Time'.
 static uint8_t encounter_turn_counter_player = 0;
@@ -352,8 +369,22 @@ static void set_enemy_turn_bar(bool full) {
 
 
 
+// Functional stuff
 
-static void player_turn(Encounterable* player, Encounterable* enemy) {
+static uint8_t calculate_effective_speed(EncounterEntity* entity) {
+    int16_t speed = entity->encounterable->speed + entity->speed_effect;
+    int16_t strength = entity->encounterable->strength + entity->strength_effect;
+    int16_t weight = armor_item[entity->encounterable->armor].weight + weapon_item[entity->encounterable->weapon].weight;
+
+    int16_t effective_speed = speed - SATURATING_SUB(weight, strength);
+
+    return MIN(MAX(effective_speed, 0), 255);
+}
+
+//static uint8_t calculate_damage(EncounterEntity* attacker, EncounterEntity* target) {}
+
+
+static void player_turn(EncounterEntity* player, EncounterEntity* enemy) {
     uint8_t menu_button = 0;
     swap_button_color(menu_button);
     set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 0, 0x18);
@@ -392,13 +423,16 @@ static void player_turn(Encounterable* player, Encounterable* enemy) {
     draw_initial_buttons();
     if (menu_button & 1) swap_button_parity();
 }
-static void enemy_turn(Encounterable* player, Encounterable* enemy) {
+static void enemy_turn(EncounterEntity* player, EncounterEntity* enemy) {
     encounter_turn_counter_enemy -= 128;
 
     for (uint8_t i = 0; i < 10; i += 1) vsync();
 }
 
 void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_sprite) {
+    EncounterEntity encounter_player = {player, 0, 0, 0, 0, false};
+    EncounterEntity encounter_enemy = {enemy, 0, 0, 0, 0, false};
+
     draw_initial_ui();
 
     decompress_sprite(TILEBLOCK2 + 0x0000 /* 00-2F */, encounter_ui_data);
@@ -441,28 +475,27 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 
     enable_lcd_interrupt();
 
-
     encounter_turn_counter_player = 0;
     encounter_turn_counter_enemy = 0;
 
 	uint8_t prev_joy = 0;
 
-    uint8_t player_effective_speed = player->speed;
-    uint8_t enemy_effective_speed = enemy->speed;
-
 	while (true) {
+        uint8_t player_effective_speed = calculate_effective_speed(&encounter_player);
+        uint8_t enemy_effective_speed = calculate_effective_speed(&encounter_enemy);
+
         encounter_turn_counter_player += player_effective_speed;
         encounter_turn_counter_enemy += enemy_effective_speed;
 
         // When an integer overflows on an add, the result is always smaller than the value added.
         if (encounter_turn_counter_player < player_effective_speed) {
             set_player_turn_bar(true);
-            player_turn(player, enemy);
+            player_turn(&encounter_player, &encounter_enemy);
         }
         set_player_turn_bar(false);
         if (encounter_turn_counter_enemy < enemy_effective_speed) {
             set_enemy_turn_bar(true);
-            enemy_turn(player, enemy);
+            enemy_turn(&encounter_player, &encounter_enemy);
         }
         set_enemy_turn_bar(false);
 

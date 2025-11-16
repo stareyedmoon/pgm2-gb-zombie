@@ -49,4 +49,6 @@ uint8_t decompress_sprite(uint8_t* dest, uint8_t* src);
 
 #define ABS(a) (a < 0 ? -a : a)
 
+#define SATURATING_SUB(a, b) (b > a ? 0 : a - b)
+
 #endif // _general_h_INCLUDE
