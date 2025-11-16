@@ -254,8 +254,54 @@ static void draw_button_move_right(uint8_t menu_button) {
 
 // Health and turn bar drawing
 
-static void set_player_health_bar(uint8_t health, uint8_t max_health) {}
-static void set_enemy_health_bar(uint8_t health, uint8_t max_health) {}
+static void set_player_health_bar(uint8_t health, uint8_t max_health) {
+    uint8_t fill = ((uint16_t)health * 64) / max_health;
+    
+    uint8_t full_bars = MIN(fill / 8, 7);
+    uint8_t partial = (0xFF) >> (fill % 8);
+    if (health == max_health) partial = 0x00;
+
+    for (uint8_t i = 0; i < full_bars; i += 1) {
+        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 2, 0x00);
+        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 3, 0x00);
+        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 4, 0x00);
+        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 5, 0x00);
+    }
+    set_vram_byte(TILEBLOCK2 + 0x0380 + full_bars*16 + 2, partial);
+    set_vram_byte(TILEBLOCK2 + 0x0380 + full_bars*16 + 3, partial);
+    set_vram_byte(TILEBLOCK2 + 0x0380 + full_bars*16 + 4, partial);
+    set_vram_byte(TILEBLOCK2 + 0x0380 + full_bars*16 + 5, partial);
+    for (uint8_t i = full_bars + 1; i < 8; i += 1) {
+        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 2, 0xFF);
+        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 3, 0xFF);
+        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 4, 0xFF);
+        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 5, 0xFF);
+    }
+}
+static void set_enemy_health_bar(uint8_t health, uint8_t max_health) {
+    uint8_t fill = ((uint16_t)health * 64) / max_health;
+    
+    uint8_t full_bars = MIN(fill / 8, 7);
+    uint8_t partial = (0xFF) >> (fill % 8);
+    if (health == max_health) partial = 0x00;
+
+    for (uint8_t i = 0; i < full_bars; i += 1) {
+        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 2, 0x00);
+        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 3, 0x00);
+        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 4, 0x00);
+        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 5, 0x00);
+    }
+    set_vram_byte(TILEBLOCK2 + 0x0300 + full_bars*16 + 2, partial);
+    set_vram_byte(TILEBLOCK2 + 0x0300 + full_bars*16 + 3, partial);
+    set_vram_byte(TILEBLOCK2 + 0x0300 + full_bars*16 + 4, partial);
+    set_vram_byte(TILEBLOCK2 + 0x0300 + full_bars*16 + 5, partial);
+    for (uint8_t i = full_bars + 1; i < 8; i += 1) {
+        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 2, 0xFF);
+        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 3, 0xFF);
+        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 4, 0xFF);
+        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 5, 0xFF);
+    }
+}
 
 static void set_player_turn_bar(bool full) {
     if (full) {
@@ -387,7 +433,7 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 	decompress_sprite(TILEBLOCK2 + 0x0500 /* 50-7F */, enemy_sprite);
 	decompress_sprite(TILEBLOCK1 + 0x0000 /* 80-AF */, font_data);
 
-    
+
     set_player_health_bar(player->health, player->max_health);
     set_enemy_health_bar(enemy->health, enemy->max_health);
     set_player_turn_bar(false);
