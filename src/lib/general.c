@@ -24,6 +24,20 @@ uint8_t rand8(void) {
 	return g_random_a;
 }
 
+uint8_t simple_binom(void) {
+	uint8_t val = rand8();
+
+	if (val <= 0) return 0;
+	if (val <= 8) return 1;
+	if (val <= 36) return 2;
+	if (val <= 92) return 3;
+	if (val <= 162) return 4;
+	if (val <= 218) return 5;
+	if (val <= 246) return 6;
+	if (val <= 254) return 7;
+	if (val <= 255) return 8;
+}
+
 uint8_t flip_byte(uint8_t value) {
 	static const uint8_t flip_lut[16] = {
 		0x0, 0x8, 0x4, 0xC, 0x2, 0xA, 0x6, 0xE, 0x1, 0x9, 0x5, 0xD, 0x3, 0xB, 0x7, 0xF

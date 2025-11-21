@@ -25,6 +25,15 @@
 
 // Data types
 
+/// @brief Effective stats for an entity. No need to calculate them every time we need to use them.
+typedef struct {
+    uint8_t intelligence;
+    uint8_t strength;
+    uint8_t speed;
+
+    bool can_use_weapon;
+} EffectiveStats;
+
 /// @brief All data for an entity used in an encounter.
 typedef struct {
     Encounterable* encounterable;
@@ -34,6 +43,7 @@ typedef struct {
     int8_t strength_effect;
     int8_t speed_effect;
 
+    EffectiveStats effective_stats;
     bool is_defending;
 } EncounterEntity;
 
@@ -371,17 +381,63 @@ static void set_enemy_turn_bar(bool full) {
 
 // Functional stuff
 
-static uint8_t calculate_effective_speed(EncounterEntity* entity) {
-    int16_t speed = entity->encounterable->speed + entity->speed_effect;
+static EffectiveStats calculate_effective_stats(EncounterEntity* entity) {
+    int16_t weight = weapon_item[entity->encounterable->weapon].weight
+    + armor_item[entity->encounterable->armor].weight;
+    
+    int16_t intelligence = entity->encounterable->intelligence + entity->intelligence_effect;
     int16_t strength = entity->encounterable->strength + entity->strength_effect;
-    int16_t weight = armor_item[entity->encounterable->armor].weight + weapon_item[entity->encounterable->weapon].weight;
+    int16_t speed = entity->encounterable->speed + entity->speed_effect;
 
-    int16_t effective_speed = speed - SATURATING_SUB(weight, strength);
 
-    return MIN(MAX(effective_speed, 1), 255);
+    EffectiveStats stats = {
+        CLAMP(intelligence, 0, 255),
+        CLAMP(strength, 0, 255),
+        CLAMP(speed - MAX(strength - weight, 0), 1, 255),
+        false
+    };
+
+    stats.can_use_weapon =
+           stats.strength >= weapon_item[entity->encounterable->weapon].strength_requirement
+        && stats.intelligence >= weapon_item[entity->encounterable->weapon].intelligence_requirement;
+
+    return stats;
 }
 
-//static uint8_t calculate_damage(EncounterEntity* attacker, EncounterEntity* target) {}
+static uint16_t calculate_damage(EncounterEntity* attacker, EncounterEntity* target) {
+    uint8_t crit_multiplier = rand8();
+    if (crit_multiplier <= (attacker->effective_stats.intelligence / 85)) crit_multiplier = 10;
+    else if (crit_multiplier * 5 < attacker->effective_stats.speed) crit_multiplier = 6;
+    else if (crit_multiplier * 2 < attacker->effective_stats.speed) crit_multiplier = 3;
+    else if (crit_multiplier < attacker->effective_stats.speed) crit_multiplier = 2;
+    else if (crit_multiplier <= (252 + attacker->effective_stats.intelligence / 85)) crit_multiplier = 0;
+    else crit_multiplier = 1;
+
+    uint8_t damage_type = weapon_item[attacker->encounterable->weapon_item].damage_type;
+    uint16_t base_damage = attacker->effective_stats.strength
+                         + attacker->effective_stats.can_use_weapon
+                             ? weapon_item[attacker->encounterable->weapon_item].damage
+                             : 0;
+
+    // Adding 5 simple_binom together gets us the same result as running a binomial with 40 trials.
+    uint8_t damage_modifier = simple_binom() + simple_binom() + simple_binom() + simple_binom() + simple_binom();
+
+    uint16_t damage = base_damage * crit_multiplier * (damage_modifier + 215) / 255;
+
+
+
+
+    switch (crit_multiplier) {
+    case  0: damage = MAX(damage, 0x07FF) | 0x0000; break; // 00000 - miss
+    case  1: damage = MAX(damage, 0x07FF) | 0x0800; break; // 00001 - normal
+    case  2: damage = MAX(damage, 0x0FFF) | 0x1000; break; // 0001  - crit
+    case  3: damage = MAX(damage, 0x1FFF) | 0x2000; break; // 001   - crit+
+    case  6: damage = MAX(damage, 0x3FFF) | 0x4000; break; // 01    - extreme crit
+    case 10: damage = MAX(damage, 0x7FFF) | 0x8000; break; // 1     - vital crit
+    }
+
+    return damage;
+}
 
 
 static void player_turn(EncounterEntity* player, EncounterEntity* enemy) {
@@ -481,19 +537,19 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
 	uint8_t prev_joy = 0;
 
 	while (true) {
-        uint8_t player_effective_speed = calculate_effective_speed(&encounter_player);
-        uint8_t enemy_effective_speed = calculate_effective_speed(&encounter_enemy);
+        encounter_player.effective_stats = calculate_effective_stats(&encounter_player);
+        encounter_enemy.effective_stats = calculate_effective_stats(&encounter_enemy);
 
-        encounter_turn_counter_player += player_effective_speed;
-        encounter_turn_counter_enemy += enemy_effective_speed;
+        encounter_turn_counter_player += encounter_player.effective_stats.speed;
+        encounter_turn_counter_enemy += encounter_enemy.effective_stats.speed;
 
         // When an integer overflows on an add, the result is always smaller than the value added.
-        if (encounter_turn_counter_player < player_effective_speed) {
+        if (encounter_turn_counter_player < encounter_player.effective_stats.speed) {
             set_player_turn_bar(true);
             player_turn(&encounter_player, &encounter_enemy);
         }
         set_player_turn_bar(false);
-        if (encounter_turn_counter_enemy < enemy_effective_speed) {
+        if (encounter_turn_counter_enemy < encounter_enemy.effective_stats.speed) {
             set_enemy_turn_bar(true);
             enemy_turn(&encounter_player, &encounter_enemy);
         }

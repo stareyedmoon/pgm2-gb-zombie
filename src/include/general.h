@@ -6,6 +6,9 @@
 /// @brief Generates a random 8-bit number.
 uint8_t rand8(void);
 
+/// @brief Selects a random number from 0 to 8 according to a binomial distribution with p=0.5 and 8 trials.
+uint8_t simple_binom(void);
+
 /// @brief Flip all the bits in a byte.
 uint8_t flip_byte(uint8_t value);
 
@@ -20,12 +23,16 @@ uint8_t decompress_sprite(uint8_t* dest, uint8_t* src);
 
 #define MIN(a, b) ((a) > (b) ? (b) : (a))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define CLAMP(a, min, max) MIN(MAX((a), (min)), (max))
 
 /// @brief Computes the absolute difference between two integers.
 /// @note For signed integers this only works for numbers within INT_MAX of eachother.
 #define DIFF(a, b) ((a) > (b) ? (a) - (b) : (b) - (a))
 
 #define ABS(a) ((a) < 0 ? -(a) : (a))
+
+/// @brief Computes addition with a maximum value of 255.
+#define SATURATING_ADD8(a, b) ((255))
 
 /// @brief Computes subtraction with a minimum value of 0.
 #define SATURATING_SUB(a, b) ((b) > (a) ? 0 : (a) - (b))
