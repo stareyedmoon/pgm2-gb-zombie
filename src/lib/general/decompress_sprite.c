@@ -5,46 +5,6 @@
 
 #include <gb/gb.h>
 
-// These aren't local to the function itself so that I'll be able to seed it, if needed.
-static uint8_t g_random_x = 0;
-static uint8_t g_random_y = 0;
-static uint8_t g_random_z = 0;
-static uint8_t g_random_a = 1;
-
-// Supposedly a decent and fast 8-bit PRNG. Will need to see how it performs during gameplay, but until then I'll go on faith.
-// Source: https://github.com/edrosten/8bit_rng/blob/master/rng-4261412736.c
-uint8_t rand8(void) {
-	uint8_t t = g_random_x ^ (g_random_x << 4);
-
-	g_random_x = g_random_y;
-	g_random_y = g_random_z;
-	g_random_z = g_random_a;
-	g_random_a = g_random_z ^ t ^ (g_random_z >> 1) ^ (t << 1);
-
-	return g_random_a;
-}
-
-uint8_t simple_binom(void) {
-	uint8_t val = rand8();
-
-	if (val <= 0) return 0;
-	if (val <= 8) return 1;
-	if (val <= 36) return 2;
-	if (val <= 92) return 3;
-	if (val <= 162) return 4;
-	if (val <= 218) return 5;
-	if (val <= 246) return 6;
-	if (val <= 254) return 7;
-	if (val <= 255) return 8;
-}
-
-uint8_t flip_byte(uint8_t value) {
-	static const uint8_t flip_lut[16] = {
-		0x0, 0x8, 0x4, 0xC, 0x2, 0xA, 0x6, 0xE, 0x1, 0x9, 0x5, 0xD, 0x3, 0xB, 0x7, 0xF
-	};
-
-	return (flip_lut[value & 0x0F] << 4) | flip_lut[value >> 4];
-}
 
 #define READ_BIT(src, off) (src[off/8]&(1<<(7-(off++%8)))?1:0)
 
@@ -65,6 +25,30 @@ static uint8_t read_bits(uint8_t* src, uint16_t* offset, uint8_t count) {
 	}
 	return value;
 }
+
+
+/************************** TODO **************************/
+/* Reimplement compression algorithm in assembly.         */            
+/* ------------------------------------------------------ */ 
+/* The reason for doing that instead of optimising the C  */
+/* code is that the compiler I'm using (SDCC/LCC) doesn't */
+/* generate particuarly optimised code, at least for this */
+/* target (sm83).                                         */
+/*                                                        */
+/* As an example, the line                                */
+/* `uint8_t full_bars = MIN(fill / 8, 7)`                 */
+/* in game/encounter.c compiles to 43 bytes, taking       */
+/* 31 to 41 cycles to execute. Writing equivalent code    */
+/* myself in assembly takes 15 bytes, taking 17 cycles to */
+/* execute.                                               */
+/*                                                        */
+/* I could optimise the C code by writing code like       */
+/* `uint8_t full_bars = fill/8;`                          */
+/* `if (full_bars > 7) full_bars = 7;`,                   */
+/* but that still doesn't generate code quite as fast as  */
+/* assembly (taking 24 bytes and 25-26 cycles), so it     */
+/* feels a bit pointless.                                 */
+/**********************************************************/
 
 #define X_TO_OFF(x) ((uint16_t)((x) & 0xF8) << 1)
 #define Y_TO_OFF(y, width) (((uint16_t)((y) & 0x07) * 2) + (((uint16_t)((y) & 0xF8) << 1) * (uint16_t)(width)))

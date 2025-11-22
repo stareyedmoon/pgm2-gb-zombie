@@ -182,7 +182,7 @@ def runlength_encode(bits: Bits, width: int, height: int) -> Bits:
 				run_length += 1
 		
 			else:
-				if not packet_type:
+				if not packet_type and run_length != 0:
 					output.push(int_to_pokecode(run_length))
 
 				output.push(data, 2)
@@ -266,7 +266,7 @@ def compress_image(image: Image.Image) -> bytes:
 			buffer.push([(0,1),(2,2),(3,2)][mode])
 			buffer.push(compressed_bitplane[1])
 			
-			print(f"{'flip' if flip else '----'} mode {mode} : {len(buffer)}")
+			#print(f"{'flip' if flip else '----'} mode {mode} : {len(buffer)}")
 			compressed_sprite_data.append(buffer)
 
 	best_index = -1
@@ -277,6 +277,8 @@ def compress_image(image: Image.Image) -> bytes:
 			best_length = len(compressed_sprite_data[i])
 
 	output.push(compressed_sprite_data[best_index])
+
+	print(f"Compressed to {len(output)}/{act_width*act_height*2} ({len(output) / (act_width*act_height*2)})")
 
 	return output.to_bytes()
 
