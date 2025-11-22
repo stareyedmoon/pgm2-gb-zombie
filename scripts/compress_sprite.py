@@ -164,14 +164,12 @@ def deltacode(bits: Bits, width: int, height: int) -> Bits:
 def runlength_encode(bits: Bits, width: int, height: int) -> Bits:
 	output = Bits()
 
-	packet_type = 0 if bits.read(2)[0] == 0 else 1
+	packet_type = 0 if ((bits[0] << 1) | bits[1]) == 0 else 1
 	output.push(packet_type, 1)
-	bits.seek(0)
 
 	run_length = 0
 	for x in range(0, width, 2):
 		for y in range(0, height, 1):
-			#data = bits.read(2)[0]
 			data = (bits[y*width + x] << 1) | bits[y*width + x + 1]
 
 			if data == 0:
