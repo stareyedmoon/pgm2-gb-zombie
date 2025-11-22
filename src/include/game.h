@@ -1,3 +1,6 @@
+#include <stdint.h>
+#include <stdbool.h>
+
 #include <entity.h>
 #include <player.h>
 #include <zombie.h>

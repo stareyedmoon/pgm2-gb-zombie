@@ -25,6 +25,7 @@ typedef struct {
 
 typedef struct {
     const char* name; // Max 20 ch
+    const char* description; // Max 40 ch$
 
     // How much the item heals or, when negative, how much it hurts.
     int8_t healing_amount;

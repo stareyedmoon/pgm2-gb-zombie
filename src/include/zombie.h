@@ -18,7 +18,6 @@ typedef struct {
 extern const ZombieType zombie_type[];
 
 /// @brief Representation of a Zombie.
-/// @note Takes 17 bytes. (Not ideal, in my opinion. Will think about this later, though.)
 typedef struct {
     Entity entity;
     Encounterable encounterable;

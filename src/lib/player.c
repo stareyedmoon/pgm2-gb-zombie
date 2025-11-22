@@ -16,21 +16,11 @@ Player player_new(char* name, uint8_t archetype) {
 		 player_archetype[archetype].base_intelligence,
 		 player_archetype[archetype].base_strength,
 		 player_archetype[archetype].base_speed,
-		 1, 1, 1},
+		 1, 1, 1, "PLAYER"},
 		0,
 		{0, 0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0},
-		{'P','L','A','Y','E','R',' ',' '}
 	};
-
-	if (name != NULL) {
-		bool is_end = false;
-		for (uint8_t i = 0; i < PLAYER_NAME_LENGTH; i++) {
-			if (!name[i]) is_end = true;
-
-			player.name[i] = is_end ? ' ' : name[i];
-		}
-	}
 
 	return player;
 }

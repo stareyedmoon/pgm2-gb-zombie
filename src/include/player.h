@@ -35,7 +35,6 @@ typedef struct {
 extern const PlayerArchetype player_archetype[];
 
 /// @brief Representation of a Player.
-/// @note Takes 42 bytes.
 typedef struct {
     Entity entity;
     Encounterable encounterable;
@@ -50,10 +49,6 @@ typedef struct {
     // How many items are stored in each slot of the inventory. Of course, it's ignored if the slot in question is empty.
     // Might add a bug intentionally (so, not really a bug) to duplicate items in some way.
     uint8_t inventory_count[PLAYER_INVENTORY_SIZE];
-
-    // The name of the player, specified on creation.
-    // Only used for display, gameplay isn't affected at all... unless you count how long it takes to print some messages, which you might if you were a speedrunner, I guess.
-    char name[PLAYER_NAME_LENGTH];
 } Player;
 
 /// @brief Creates a new player. Stats are decided by archetype, while Lv, Exp, inventory, weapon, and armor are initialized to 0/none.
