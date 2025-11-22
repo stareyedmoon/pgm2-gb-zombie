@@ -12,9 +12,6 @@
 #include <defines.h>
 
 #include <entity.h>
-#include <player.h>
-#include <zombie.h>
-
 #include <item.h>
 
 
@@ -54,35 +51,46 @@ static uint8_t encounter_turn_counter_player = 0;
 static uint8_t encounter_turn_counter_enemy = 0;
 
 
-static int8_t encounter_zombie_scroll = 0;
-
-
+static int8_t encounter_enemy_animation = 0;
+static uint8_t encounter_text_scroll = 0;
 
 // Interrupts
 
 static void lcd_int_handler(void) {
     disable_interrupts();
-	if (LCD_LYC == 0) {
-        LCD_SCX = encounter_zombie_scroll;
+	if (LCD_LYC == 0) { // Enemy
+        LCD_SCX = encounter_enemy_animation;
         LCD_SCY = 0;
         
         LCD_LYC = 60;
 	}
-	else if (LCD_LYC == 60) {
+	else if (LCD_LYC == 60) { // Enemy health and turn bar
         LCD_SCX = 0;
         LCD_SCY = 3;
         
         LCD_LYC = 68;
 	}
-    else if (LCD_LYC == 68) {
+    else if (LCD_LYC == 68) { // Text top border
         LCD_SCX = 0;
         LCD_SCY = 8;
+
+        LCD_LYC = 71;
+    }
+    else if (LCD_LYC == 71) { // Text
+        LCD_SCX = 0;
+        LCD_SCY = 8 + encounter_text_scroll * 8;
+
+        LCD_LYC = 119;
+    }
+    else if (LCD_LYC == 119) { // Text bottom border
+        LCD_SCX = 0;
+        LCD_SCY = 104;
 
         LCD_LYC = 124;
     }
     else if (LCD_LYC == 124) {
         LCD_SCX = 0;
-        LCD_SCY = 17;
+        LCD_SCY = 112;
 
         LCD_LYC = 0;
     }
@@ -121,13 +129,14 @@ static void draw_initial_background(void) {
         }
     }
     // Text area
-    for (uint16_t y = 10; y < 16; y += 1) {
+    for (uint16_t y = 10; y < 28; y += 1) {
         for (uint16_t x = 0; x < BUFFER_WIDTH; x += 1) {
-            set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x, 0x80);
+            //set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x, 0x80);
+            set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x, 0x80 + y - 9);
         }
     }
     // Player area
-    for (uint16_t y = 17; y < BUFFER_HEIGHT; y += 1) {
+    for (uint16_t y = 29; y < BUFFER_HEIGHT; y += 1) {
         for (uint16_t x = 0; x < BUFFER_HEIGHT; x += 1) {
             set_vram_byte(TILEMAP0 + y*BUFFER_WIDTH + x, 0x08);
         }
@@ -136,24 +145,24 @@ static void draw_initial_background(void) {
 static void draw_initial_edges(void) {
     for (uint16_t x = 0; x < 32; x += 1) {
         set_vram_byte(TILEMAP0 + 9*BUFFER_WIDTH + x, 0x02);
-        set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + x, 0x0A);
+        set_vram_byte(TILEMAP0 + 28*BUFFER_WIDTH + x, 0x0A);
     }
 
     set_vram_byte(TILEMAP0 + 9*BUFFER_WIDTH + 0, 0x01);
     set_vram_byte(TILEMAP0 + 9*BUFFER_WIDTH + 19, 0x03);
-    set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 0, 0x09);
-    set_vram_byte(TILEMAP0 + 16*BUFFER_WIDTH + 19, 0x0B);
+    set_vram_byte(TILEMAP0 + 28*BUFFER_WIDTH + 0, 0x09);
+    set_vram_byte(TILEMAP0 + 28*BUFFER_WIDTH + 19, 0x0B);
 }
 static void draw_initial_bars(void) {
     for (uint16_t x = 0; x < 8; x += 1) {
         set_vram_byte(TILEMAP0 + 8*BUFFER_WIDTH + x + 6, 0x30 + x);
-        set_vram_byte(TILEMAP0 + 19*BUFFER_WIDTH + x + 6, 0x38 + x);
+        set_vram_byte(TILEMAP0 + 31*BUFFER_WIDTH + x + 6, 0x38 + x);
     }
 
     set_vram_byte(TILEMAP0 + 8*BUFFER_WIDTH + 5, 0x1E);
     set_vram_byte(TILEMAP0 + 8*BUFFER_WIDTH + 14, 0x1F);
-    set_vram_byte(TILEMAP0 + 19*BUFFER_WIDTH + 5, 0x16);
-    set_vram_byte(TILEMAP0 + 19*BUFFER_WIDTH + 14, 0x17);
+    set_vram_byte(TILEMAP0 + 31*BUFFER_WIDTH + 5, 0x16);
+    set_vram_byte(TILEMAP0 + 31*BUFFER_WIDTH + 14, 0x17);
 }
 static void draw_initial_enemy(void) {
     for (uint16_t y = 0; y < 8; y += 1) {
@@ -176,8 +185,8 @@ static void draw_initial_buttons(void) {
 
     for (uint16_t y = 0; y < 3; y += 1) {
         for (uint16_t x = 0; x < 5; x += 1) {
-            set_vram_byte(TILEMAP0 + (y+17)*BUFFER_WIDTH + x + 0, button_tiles_left[y*5 + x]);
-            set_vram_byte(TILEMAP0 + (y+17)*BUFFER_WIDTH + x + 15, button_tiles_right[y*5 + x]);
+            set_vram_byte(TILEMAP0 + (y+29)*BUFFER_WIDTH + x + 0, button_tiles_left[y*5 + x]);
+            set_vram_byte(TILEMAP0 + (y+29)*BUFFER_WIDTH + x + 15, button_tiles_right[y*5 + x]);
         }
     }
 }
@@ -217,29 +226,30 @@ static void draw_button_move_left(uint8_t menu_button) {
 
     switch (menu_button) {
     case 0:
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 0, 0x18);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 1, 0x19);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 3, 0x11);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 4, 0x12);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 0, 0x18);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 1, 0x19);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 3, 0x11);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 4, 0x12);
         break;
     case 1:
-        set_vram_byte(TILEMAP0 + 19*BUFFER_WIDTH + 2, 0x1D);
-        set_vram_byte(TILEMAP0 + 18*BUFFER_WIDTH + 2, 0x1C);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 2, 0x1B);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 3, 0x19);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 4, 0x1A);
+        set_vram_byte(TILEMAP0 + 31*BUFFER_WIDTH + 2, 0x1D);
+        set_vram_byte(TILEMAP0 + 30*BUFFER_WIDTH + 2, 0x1C);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 2, 0x1B);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 3, 0x19);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 4, 0x1A);
 
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 15, 0x10);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 16, 0x11);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 17, 0x13);
-        set_vram_byte(TILEMAP0 + 18*BUFFER_WIDTH + 17, 0x14);
-        set_vram_byte(TILEMAP0 + 19*BUFFER_WIDTH + 17, 0x15);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 15, 0x10);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 16, 0x11);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 17, 0x13); // set_vram_byte seems to have a bug where, with the right timing, it still writes during Mode 3.
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 17, 0x13);
+        set_vram_byte(TILEMAP0 + 30*BUFFER_WIDTH + 17, 0x14);
+        set_vram_byte(TILEMAP0 + 31*BUFFER_WIDTH + 17, 0x15);
         break;
     case 2:
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 15, 0x18);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 16, 0x19);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 18, 0x11);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 19, 0x12);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 15, 0x18);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 16, 0x19);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 18, 0x11);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 19, 0x12);
         break;
     }
 }
@@ -250,33 +260,39 @@ static void draw_button_move_right(uint8_t menu_button) {
 
     switch (menu_button) {
     case 1:
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 0, 0x10);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 1, 0x11);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 3, 0x19);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 4, 0x1A);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 0, 0x10);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 1, 0x11);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 3, 0x19);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 4, 0x1A);
         break;
     case 2:
-        set_vram_byte(TILEMAP0 + 19*BUFFER_WIDTH + 2, 0x15);
-        set_vram_byte(TILEMAP0 + 18*BUFFER_WIDTH + 2, 0x14);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 2, 0x13);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 3, 0x11);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 4, 0x12);
+        set_vram_byte(TILEMAP0 + 31*BUFFER_WIDTH + 2, 0x15);
+        set_vram_byte(TILEMAP0 + 30*BUFFER_WIDTH + 2, 0x14);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 2, 0x13);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 3, 0x11);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 4, 0x12);
 
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 15, 0x18);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 16, 0x19);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 17, 0x1B);
-        set_vram_byte(TILEMAP0 + 18*BUFFER_WIDTH + 17, 0x1C);
-        set_vram_byte(TILEMAP0 + 19*BUFFER_WIDTH + 17, 0x1D);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 15, 0x18);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 16, 0x19);// set_vram_byte seems to have a bug where, with the right timing, it still writes during Mode 3.
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 16, 0x19);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 17, 0x1B);
+        set_vram_byte(TILEMAP0 + 30*BUFFER_WIDTH + 17, 0x1C);
+        set_vram_byte(TILEMAP0 + 31*BUFFER_WIDTH + 17, 0x1D);
         break;
     case 3:
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 15, 0x10);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 16, 0x11);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 18, 0x19);
-        set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 19, 0x1A);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 15, 0x10);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 16, 0x11);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 18, 0x19);
+        set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 19, 0x1A);
         break;
     }
 }
 
+
+static void draw_player_attack_menu(void) {}
+static void draw_playes_item_menu(void) {}
+static void draw_player_info_menu(void) {}
+static void draw_player_run_menu(void) {}
 
 
 // Health and turn bar drawing
@@ -413,10 +429,10 @@ static uint16_t calculate_damage(EncounterEntity* attacker, EncounterEntity* tar
     else if (crit_multiplier <= (252 + attacker->effective_stats.intelligence / 85)) crit_multiplier = 0;
     else crit_multiplier = 1;
 
-    uint8_t damage_type = weapon_item[attacker->encounterable->weapon_item].damage_type;
+    uint8_t damage_type = weapon_item[attacker->encounterable->weapon].damage_type;
     uint16_t base_damage = attacker->effective_stats.strength
                          + attacker->effective_stats.can_use_weapon
-                             ? weapon_item[attacker->encounterable->weapon_item].damage
+                             ? weapon_item[attacker->encounterable->weapon].damage
                              : 0;
 
     // Adding 5 simple_binom together gets us the same result as running a binomial with 40 trials.
@@ -440,16 +456,26 @@ static uint16_t calculate_damage(EncounterEntity* attacker, EncounterEntity* tar
 }
 
 
+static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) {
+
+}
+static void player_turn_items(EncounterEntity* player, EncounterEntity* enemy) {
+
+}
+
 static void player_turn(EncounterEntity* player, EncounterEntity* enemy) {
+    swap_button_color(0);
+    set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 0, 0x18);
+    set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 1, 0x19);
+    set_vram_byte(TILEMAP0 + 29*BUFFER_WIDTH + 2, 0x1B);
+    set_vram_byte(TILEMAP0 + 30*BUFFER_WIDTH + 2, 0x1C);
+    set_vram_byte(TILEMAP0 + 31*BUFFER_WIDTH + 2, 0x1D);
+    
     uint8_t menu_button = 0;
-    swap_button_color(menu_button);
-    set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 0, 0x18);
-    set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 1, 0x19);
-    set_vram_byte(TILEMAP0 + 17*BUFFER_WIDTH + 2, 0x1B);
-    set_vram_byte(TILEMAP0 + 18*BUFFER_WIDTH + 2, 0x1C);
-    set_vram_byte(TILEMAP0 + 19*BUFFER_WIDTH + 2, 0x1D);
+    bool menu_changed = true;
 
     uint8_t prev_joy = joypad();
+
     while (true) {
 		uint8_t cur_joy = joypad();
 		// Bitmaps of which buttons were just pressed and released.
@@ -459,14 +485,38 @@ static void player_turn(EncounterEntity* player, EncounterEntity* enemy) {
 
         if (just_pressed & J_LEFT && menu_button > 0) {
             menu_button -= 1;
+            menu_changed = true;
             draw_button_move_left(menu_button);
         }
         if (just_pressed & J_RIGHT && menu_button < 3) {
             menu_button += 1;
+            menu_changed = true;
             draw_button_move_right(menu_button);
         }
+        if (menu_changed) {
+            encounter_text_scroll = 0;
 
-        if (just_pressed & J_A) break;
+            switch (menu_button) {
+            case 0: draw_player_attack_menu(); break;
+            case 1: draw_player_item_menu(); break;
+            case 2: draw_player_info_menu(); break;
+            case 3: draw_player_run_menu(); break;
+            }
+
+            menu_changed = false;
+        }
+
+        if (just_pressed & J_A) {
+            // Attack
+            if (menu_button == 0) {
+                player_turn_attack(player, enemy);
+            }
+            // Item
+            else if (menu_button == 1) {
+                player_turn_items(player, enemy);
+            }
+            // TODO - Implement running away
+        }
 
 
         prev_joy = cur_joy;
@@ -486,8 +536,8 @@ static void enemy_turn(EncounterEntity* player, EncounterEntity* enemy) {
 }
 
 void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_sprite) {
-    EncounterEntity encounter_player = {player, 0, 0, 0, 0, false};
-    EncounterEntity encounter_enemy = {enemy, 0, 0, 0, 0, false};
+    EncounterEntity encounter_player = {player, 0, 0, 0, 0, {0, 0, 0, false}, false};
+    EncounterEntity encounter_enemy = {enemy, 0, 0, 0, 0, {0, 0, 0, false}, false};
 
     draw_initial_ui();
 
