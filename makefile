@@ -5,7 +5,7 @@ CC := lcc
 CFLAGS += -msm83:gb -Wa-l -Wb-yt0x00 -Wf--opt-code-speed "-Wf-I${SOURCE}/include"
 
 
-src_c := $(wildcard ${SOURCE}/*.c) $(wildcard ${SOURCE}/*/*.c) $(wildcard ${SOURCE}/*/*/*.c)
+src_c := $(find ${SOURCE} *.c)
 obj_c := $(patsubst ${SOURCE}/%.c, ${BUILD}/%.o, ${src_c})
 bin := out.gb
 
@@ -43,7 +43,7 @@ echo:
 build: ${bin}
 
 clean:
-	rm -f ${obj_c}
+	rm -f ${obj} ${resrc_png_c} ${resrc_png_h} ${resrc_png_bin}
 
 
 ${bin}: ${obj}
