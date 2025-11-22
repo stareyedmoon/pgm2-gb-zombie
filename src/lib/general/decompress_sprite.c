@@ -144,6 +144,10 @@ uint8_t decompress_sprite(uint8_t* dest, uint8_t* src) {
 	uint8_t width = read_bits(src, &src_off, 4);
 	uint8_t height = read_bits(src, &src_off, 4);
 
+	for (uint16_t i = 0; i < (width*height*16); i += 1) {
+		set_vram_byte(dest + i, 0);
+	}
+
 	bool swapped_buffers = read_bit(src, &src_off);
 
 	rldecode(dest + swapped_buffers, src, &src_off, width, height);
