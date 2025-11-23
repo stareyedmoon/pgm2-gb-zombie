@@ -4,9 +4,14 @@ BUILD := ./build
 CC := lcc
 CFLAGS += -msm83:gb -Wa-l -Wb-yt0x00 -Wf--opt-code-speed "-Wf-I${SOURCE}/include"
 
+ASM := sdasgb
 
 src_c := $(shell find ${SOURCE} -name '*.c')
 obj_c := $(patsubst ${SOURCE}/%.c, ${BUILD}/%.o, ${src_c})
+
+src_asm := $(shell find ${SOURCE} -name '*.asm')
+obj_asm := $(patsubst ${SOURCE}/%.asm, ${BUILD}/%.o, ${src_asm})
+
 bin := out.gb
 
 resrc_png := $(wildcard ${SOURCE}/resource/*.png)
@@ -15,7 +20,7 @@ resrc_png_c := $(patsubst ${SOURCE}/resource/%.png, ${BUILD}/resource/%.c, ${res
 resrc_png_h := $(patsubst ${SOURCE}/resource/%.png, ${SOURCE}/include/resource/%.h, ${resrc_png})
 resrc_png_obj := $(patsubst ${SOURCE}/resource/%.png, ${BUILD}/resource/%.o, ${resrc_png})
 
-obj = ${obj_c} ${resrc_png_obj}
+obj = ${obj_c} ${obj_asm} ${resrc_png_obj}
 
 .PHONY: help echo build clean
 
@@ -53,6 +58,10 @@ ${bin}: ${obj}
 ${obj_c}: ${BUILD}/%.o : ${SOURCE}/%.c ${resrc_png_h}
 	@mkdir -p $(dir $@)
 	${CC} ${CFLAGS} -c $< -o $@
+
+${obj_asm}: ${BUILD}/%.o : ${SOURCE}/%.asm
+	@mkdir -p $(dir $@)
+	${ASM} -o $@ $<
 
 resrc: ${resrc_png_c} ${resrc_png_h}
 

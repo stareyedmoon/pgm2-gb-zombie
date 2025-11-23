@@ -111,29 +111,11 @@ static void rldecode(uint8_t* dest, uint8_t* src, uint16_t* src_off, uint8_t wid
 	}
 }
 
-static void deltadecode(uint8_t* dest, uint8_t width, uint8_t height) {
-	uint8_t width_px = width * 8;
-	uint8_t height_px = height * 8;
-
-	for (uint8_t y = 0; y < height_px; y += 1) {
-		uint16_t yoff = Y_TO_OFF(y, width);
-
-		bool prev = false;
-		for (uint8_t x = 0; x < width_px; x += 1) {
-			uint16_t xoff = X_TO_OFF(x);
-			uint8_t mask = 0x80 >> (x & 0x07);
-
-			uint8_t value = get_vram_byte(dest + xoff + yoff);
-			if (value & mask) prev = !prev;
-
-			if (prev) set_vram_byte(dest + xoff + yoff, value | mask);
-			else set_vram_byte(dest + xoff + yoff, value & ~mask);
-		}
-	}
-}
+extern void decompression_deltadecode(uint8_t* dest, uint8_t width, uint8_t height);
 
 static void unxor(uint8_t* dest, uint8_t* src, uint8_t size) {
 	for (uint16_t i = 0; i < (uint16_t)size * 16; i += 2) {
+		// Hold on thats just an XOR. Why did I name this function `unxor`?
 		set_vram_byte(dest + i, get_vram_byte(dest + i) ^ get_vram_byte(src + i));
 	}
 }
@@ -157,9 +139,9 @@ uint8_t decompress_sprite(uint8_t* dest, uint8_t* src) {
 
 	rldecode(dest + 1 - swapped_buffers, src, &src_off, width, height);
 
-	deltadecode(dest + swapped_buffers, width, height);
-
-	if (mode != 1) deltadecode(dest + 1 - swapped_buffers, width, height);
+	decompression_deltadecode(dest + swapped_buffers, width, height);
+	
+	if (mode != 1) decompression_deltadecode(dest + 1 - swapped_buffers, width, height);
 
 	if (mode) unxor(dest + 1 - swapped_buffers, dest + swapped_buffers, width * height);
 
