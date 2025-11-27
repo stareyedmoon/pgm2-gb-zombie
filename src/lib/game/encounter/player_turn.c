@@ -15,7 +15,7 @@ static void draw_player_run_menu(EncounterEntity* player, EncounterEntity* enemy
 
 
 static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) {
-
+    enemy->encounterable->health -= calculate_damage(player, enemy) & 0x07FF;
 }
 static void player_turn_items(EncounterEntity* player, EncounterEntity* enemy) {
 
@@ -69,6 +69,7 @@ void encounter_player_turn(EncounterEntity* player, EncounterEntity* enemy) {
             // Attack
             if (menu_button == 0) {
                 player_turn_attack(player, enemy);
+                encounter_draw_enemy_health_bar(enemy->encounterable->health, enemy->encounterable->max_health);
             }
             // Item
             else if (menu_button == 1) {
