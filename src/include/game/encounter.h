@@ -53,8 +53,8 @@ void encounter_button_move_right(uint8_t menu_button);
 
 void encounter_draw_initial_bar_tiles(void);
 
-void encounter_draw_player_health_bar(uint8_t health, uint8_t max_health);
-void encounter_draw_enemy_health_bar(uint8_t health, uint8_t max_health);
+void encounter_draw_player_health_bar(uint16_t health, uint16_t max_health);
+void encounter_draw_enemy_health_bar(uint16_t health, uint16_t max_health);
 
 void encounter_draw_player_turn_bar(uint8_t turn_counter, bool full);
 void encounter_draw_enemy_turn_bar(uint8_t turn_counter, bool full);

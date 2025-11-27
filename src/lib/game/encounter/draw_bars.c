@@ -35,8 +35,8 @@ void encounter_draw_initial_bar_tiles(void) {
     }
 }
 
-void encounter_draw_player_health_bar(uint8_t health, uint8_t max_health) {
-    uint8_t fill = ((uint16_t)health * 64) / max_health;
+void encounter_draw_player_health_bar(uint16_t health, uint16_t max_health) {
+    uint8_t fill = (health * 64) / max_health;
     
     uint8_t full_bars = MIN(fill / 8, 7);
     uint8_t partial = (0xFF) >> (fill % 8);
@@ -59,8 +59,8 @@ void encounter_draw_player_health_bar(uint8_t health, uint8_t max_health) {
         set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 5, 0xFF);
     }
 }
-void encounter_draw_enemy_health_bar(uint8_t health, uint8_t max_health) {
-    uint8_t fill = ((uint16_t)health * 64) / max_health;
+void encounter_draw_enemy_health_bar(uint16_t health, uint16_t max_health) {
+    uint8_t fill = (health * 64) / max_health;
     
     uint8_t full_bars = MIN(fill / 8, 7);
     uint8_t partial = (0xFF) >> (fill % 8);
