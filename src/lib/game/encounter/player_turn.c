@@ -70,10 +70,12 @@ void encounter_player_turn(EncounterEntity* player, EncounterEntity* enemy) {
             if (menu_button == 0) {
                 player_turn_attack(player, enemy);
                 encounter_draw_enemy_health_bar(enemy->encounterable->health, enemy->encounterable->max_health);
+                encounter_turn_counter_player -= 128;
             }
             // Item
             else if (menu_button == 1) {
                 player_turn_items(player, enemy);
+                encounter_turn_counter_player -= 32;
             }
             // TODO - Implement running away
 

@@ -8,7 +8,7 @@
 typedef struct {
     const char* name;
 
-    uint8_t base_health;
+    uint16_t base_health;
     uint8_t base_strength;
     uint8_t base_speed;
 } ZombieType;

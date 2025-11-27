@@ -18,7 +18,7 @@ EffectiveStats calculate_effective_stats(EncounterEntity* entity) {
     EffectiveStats stats = {
         CLAMP(intelligence, 0, 255),
         CLAMP(strength, 0, 255),
-        CLAMP(speed - MAX(strength - weight, 0), 1, 255),
+        CLAMP(speed - MAX(weight - strength, 0), 1, 255),
         false
     };
 

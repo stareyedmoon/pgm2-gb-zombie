@@ -26,7 +26,7 @@
 #define PLAYER_ARCHETYPE_PATHETIC 3
 
 typedef struct {
-    uint8_t base_health;
+    uint16_t base_health;
     uint8_t base_intelligence;
     uint8_t base_strength;
     uint8_t base_speed;
