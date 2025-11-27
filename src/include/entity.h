@@ -59,6 +59,10 @@ typedef struct {
     // Heavy armor reduces speed, which is counteracted by strength.
     // Different armors absorb different damage types to different extents, not taking account the stats of the encounterable.
     uint8_t armor;
+
+    // Name of the encounterable.
+    // Mainly used to show the name of the enemy in encounters, but is probably gonna be used for some other things too.
+    const char* name;
 } Encounterable;
 
 #endif // _entity_h_INCLUDE
