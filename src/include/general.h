@@ -19,6 +19,11 @@ uint8_t flip_byte(uint8_t value);
 /// @warning As this function does not check buffer bounds for performance reasons, you MUST be careful that any data you decompress can actually fit in the destination.
 uint8_t decompress_sprite(uint8_t* dest, uint8_t* src);
 
+uint8_t linear_interp(uint8_t a, uint8_t b, uint8_t c);
+
+uint8_t log2(uint8_t val);
+uint8_t log2l(uint16_t val);
+
 // Given that C doesn't have templates like C++ does, it's much easier to make macros than functions for each integer type.
 
 #define MIN(a, b) ((a) > (b) ? (b) : (a))

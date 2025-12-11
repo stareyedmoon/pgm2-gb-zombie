@@ -5,7 +5,6 @@
 
 #include <gb/gb.h>
 
-
 #define READ_BIT(src, off) (src[off/8]&(1<<(7-(off++%8)))?1:0)
 
 static bool read_bit(uint8_t* src, uint16_t* offset) {
@@ -26,14 +25,13 @@ static uint8_t read_bits(uint8_t* src, uint16_t* offset, uint8_t count) {
 	return value;
 }
 
-
 /************************** TODO **************************/
-/* Reimplement compression algorithm in assembly.         */            
-/* ------------------------------------------------------ */ 
+/* Reimplement compression algorithm in assembly.         */
+/* ------------------------------------------------------ */
 /* The reason for doing that instead of optimising the C  */
 /* code is that the compiler I'm using (SDCC/LCC) doesn't */
-/* generate particuarly optimised code, at least for this */
-/* target (sm83).                                         */
+/* generate particularly optimised code, at least for     */
+/* this target (sm83).                                    */
 /*                                                        */
 /* As an example, the line                                */
 /* `uint8_t full_bars = MIN(fill / 8, 7)`                 */

@@ -1,6 +1,6 @@
 // I really only ever need one instance of player at any one time, and hard-coding one at some
 //   arbitrary location would probably be slightly better for performance, given we're on a
-//   Gameboy, but the assignment wanted objects, and they're easier to work with, anyhow.
+//   Gameboy, but the assignment wanted objects, and they're easier to work with anyway.
 
 #include <stdint.h>
 #include <stdbool.h>

@@ -58,7 +58,8 @@ void game_encounter(Encounterable* player, Encounterable* enemy, uint8_t* enemy_
             encounter_player_turn(&encounter_player, &encounter_enemy);
         }
         encounter_draw_player_turn_bar(encounter_turn_counter_player, false);
-        if (encounter_turn_counter_enemy < encounter_enemy.effective_stats.speed) {
+        
+	if (encounter_turn_counter_enemy < encounter_enemy.effective_stats.speed) {
             encounter_draw_enemy_turn_bar(0, true);
             encounter_enemy_turn(&encounter_player, &encounter_enemy);
         }
