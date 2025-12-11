@@ -15,7 +15,7 @@ static void draw_player_run_menu(EncounterEntity* player, EncounterEntity* enemy
 
 
 static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) {
-	static const int8_t damage_shake[16] = {25, 49, 55, 50, 38, 22, 7, -6, -16, -20, -20, -16, -9, -2, -2, 0};
+	static const int8_t damage_shake[16] = {25, 49, 55, 50, 38, 22, 7, -6, -16, -20, -18, -16, -9, -2, -1, 0};
 	static const uint8_t shake_scale_linexp_lut[17] = {
 		0, 1, 3, 6, 12, 18, 28, 43, 65, 99, 151, 215, 252, 255, 255, 255, 255
 	};
