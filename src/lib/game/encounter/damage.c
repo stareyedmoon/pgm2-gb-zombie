@@ -28,20 +28,6 @@ static uint8_t get_crit(EncounterEntity* attacker) {
     }
 }
 
-static uint16_t encode_damage_crit(uint16_t damage, uint8_t crit_multiplier) {
-    switch (crit_multiplier) {
-    case  0: damage = MIN(damage, 0x07FF) | 0x0000; break; // 00000 - miss
-    case  1: damage = MIN(damage, 0x07FF) | 0x0800; break; // 00001 - normal
-    case  2: damage = MIN(damage, 0x0FFF) | 0x1000; break; // 0001  - crit
-    case  3: damage = MIN(damage, 0x1FFF) | 0x2000; break; // 001   - crit+
-    case  6: damage = MIN(damage, 0x3FFF) | 0x4000; break; // 01    - extreme crit
-    case 10: damage = MIN(damage, 0x7FFF) | 0x8000; break; // 1     - vital crit
-    }
-
-    return damage;
-}
-
-
 static uint16_t get_base_damage(EncounterEntity* attacker) {
     return attacker->effective_stats.strength
          + (attacker->effective_stats.can_use_weapon
@@ -65,7 +51,7 @@ static uint8_t get_enemy_protection(EncounterEntity* attacker, EncounterEntity* 
     }
 }
 
-uint16_t calculate_damage(EncounterEntity* attacker, EncounterEntity* target) {
+Damage calculate_damage(EncounterEntity* attacker, EncounterEntity* target) {
     uint8_t crit_multiplier = get_crit(attacker);
 
 
@@ -85,5 +71,9 @@ uint16_t calculate_damage(EncounterEntity* attacker, EncounterEntity* target) {
 
     damage = MAX(damage, 1);
 
-    return encode_damage_crit(damage, crit_multiplier);;
+    Damage dmg = {
+	damage,
+	crit_multiplier
+    };
+    return dmg;
 }

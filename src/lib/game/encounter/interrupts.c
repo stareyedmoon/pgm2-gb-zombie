@@ -5,13 +5,15 @@
 #include <defines.h>
 #include <general.h>
 
-int8_t encounter_enemy_animation = 0;
+int8_t encounter_enemy_animation[16] = {0};
+uint8_t encounter_enemy_animation_index = 16;
+
 uint8_t encounter_text_scroll = 0;
 
 static void lcd_int_handler(void) {
     disable_interrupts();
 	if (LCD_LYC == 0) { // Enemy
-        LCD_SCX = encounter_enemy_animation;
+        LCD_SCX = encounter_enemy_animation_index < 16 ? encounter_enemy_animation[encounter_enemy_animation_index] : 0;
         LCD_SCY = 0;
         
         LCD_LYC = 60;
@@ -45,6 +47,8 @@ static void lcd_int_handler(void) {
         LCD_SCY = 112;
 
         LCD_LYC = 0;
+
+	if (encounter_enemy_animation_index < 16) encounter_enemy_animation_index += 1;
     }
 	enable_interrupts();
 }
@@ -89,4 +93,6 @@ void encounter_disable_interrupts(void) {
     }
 
     enable_interrupts();
+
+    set_interrupts(IE_REG & ~LCD_IFLAG);
 }

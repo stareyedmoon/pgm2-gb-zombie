@@ -30,13 +30,18 @@ typedef struct {
     bool is_defending;
 } EncounterEntity;
 
+typedef struct {
+	uint16_t damage;
+	uint8_t crit;
+} Damage;
 
 // The way speed works is that it's added to the counter, and when it reaches 255 you get a turn.
 // Pretty much copied from 'In Stars And Time'.
 extern uint8_t encounter_turn_counter_player;
 extern uint8_t encounter_turn_counter_enemy;
 
-extern int8_t encounter_enemy_animation;
+extern int8_t encounter_enemy_animation[16];
+extern uint8_t encounter_enemy_animation_index;
 extern uint8_t encounter_text_scroll;
 
 
@@ -60,7 +65,7 @@ void encounter_draw_player_turn_bar(uint8_t turn_counter, bool full);
 void encounter_draw_enemy_turn_bar(uint8_t turn_counter, bool full);
 
 EffectiveStats calculate_effective_stats(EncounterEntity* entity);
-uint16_t calculate_damage(EncounterEntity* attacker, EncounterEntity* target);
+Damage calculate_damage(EncounterEntity* attacker, EncounterEntity* target);
 
 void encounter_player_turn(EncounterEntity* player, EncounterEntity* enemy);
 void encounter_enemy_turn(EncounterEntity* player, EncounterEntity* enemy);
