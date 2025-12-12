@@ -13,25 +13,22 @@ static void draw_player_item_menu(EncounterEntity* player, EncounterEntity* enem
 static void draw_player_info_menu(EncounterEntity* player, EncounterEntity* enemy) {}
 static void draw_player_run_menu(EncounterEntity* player, EncounterEntity* enemy) {}
 
-
-static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) {
+static void set_zombie_shake(uint16_t damage) {
 	static const int8_t damage_shake[16] = {25, 49, 55, 50, 38, 22, 7, -6, -16, -20, -18, -16, -9, -2, -1, 0};
 	static const uint8_t shake_scale_linexp_lut[17] = {
 		0, 1, 3, 6, 12, 18, 28, 43, 65, 99, 151, 215, 252, 255, 255, 255, 255
 	};
-
-	Damage damage = calculate_damage(player, enemy);
-
+	
 	uint8_t shake_scale = 0;
 
-	if (damage.damage > 0) {
-		uint8_t damage_exp = log2l(damage.damage);
+	if (damage > 0) {
+		uint8_t damage_exp = log2l(damage);
 		shake_scale = linear_interp(
 			shake_scale_linexp_lut[damage_exp],
 			shake_scale_linexp_lut[damage_exp + 1],
 			0xFF & (damage_exp < 8
-				? damage.damage << (8 - damage_exp)
-				: damage.damage >> (damage_exp - 8))
+				? damage << (8 - damage_exp)
+				: damage >> (damage_exp - 8))
 		);
 	}
 
@@ -45,9 +42,14 @@ static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) 
 
 		encounter_enemy_animation[i] = scaled_shake;
 	}
+}
 
+static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) {
+	Damage damage = calculate_damage(player, enemy);
+	
 	enemy->encounterable->health -= MIN(enemy->encounterable->health, damage.damage);
 
+	set_zombie_shake(damage.damage);
 	encounter_enemy_animation_index = 0;
 	
 	// TODO - Slash animation
