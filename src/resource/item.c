@@ -1,320 +1,70 @@
 #include <item.h>
 
 const KeyItem key_item[] = {
-	{"None"},
+	{ "NONE" },
 };
 
 const ConsumableItem consumable_item[] = {
-	{"COFFEE",
-		-1, /* Healing amount */
+	{ "NONE",
+		"THERE'S NOTHING THERE",
 
-		 2, /* Effect duration */
-		 1, /* Intelligence effect */
-		 1, /* Strength effect */
-		 1  /* Speed effect */
-	},
-	{"INDISTINCT DRUGS",
-		-10, /* Healing amount */
+		0,
 
-		  8, /* Effect duration */
-		- 5, /* Intelligence effect */
-		  2, /* Strength effect */
-		  2  /* Speed effect */
-	},
-
-	{"BEANS",
-		30, /* Healing amount */
-
-		 1, /* Effect duration */
-		 0, /* Intelligence effect */
-		-1, /* Strength effect */
-		-1  /* Speed effect */
-	},
-
-	{"magic SUPER JUICE",
-		127, /* Healing amount */
-
-		255, /* Effect duration */
-		127, /* Intelligence effect */
-		127, /* Strength effect */
-		127  /* Speed effect */
-	},
+		0,
+		0, 0, 0
+	}
 };
 
-// I imagine I'll be adjusting all the requirements and such later.
-// Possible changes to make:
-// - Ranged weapons have higher damage at the cost of taking ammo?
-// - Ranged weapons don't get extra damage (from buffs, dmg, etc)?
-// TODO:
-// - Redo all the requirement, weight, and damage numbers
 const WeaponItem weapon_item[] = {
-	{"FISTS",
-		"CAN'T OUTLAW FISTS.",
-		0, /* Intelligence requirement */
-		0, /* Strength requirement */
-		0, /* Weight */
-		0, /* Damage */
-		DAMAGE_TYPE_BLUNT
-	},
-	{"BRASS KNUCKLES",
-		"THEY'RE IN YOUR\nBACK POCKET.",
-		0, /* Intelligence requirement */
-		0, /* Strength requirement */
-		0, /* Weight */
-		1, /* Damage */
-		DAMAGE_TYPE_BLUNT
-	},
-	{"DOOM FISTS",
-		"RIP AND TEAR.",
-		  0, /* Intelligence requirement */
-		255, /* Strength requirement */
-		255, /* Weight */
-		255, /* Damage */
-		DAMAGE_TYPE_BLUNT
-	},
+	{ "FISTS",
+		"CAN'T OUTLAW FISTS",
 
-	// Club series
-	{"THICK STICK",
-		"NOT TERRIBLY\nEFFECTIVE.",
-		0, /* Intelligence requirement */
-		0, /* Strength requirement */
-		1, /* Weight */
-		2, /* Damage */
-		DAMAGE_TYPE_BLUNT
-	},
-	{"CLUB",
-		"",
-		0, /* Intelligence requirement */
-		2, /* Strength requirement */
-		3, /* Weight */
-		5, /* Damage */
-		DAMAGE_TYPE_BLUNT
-	},
-	{"IRON BASEBALL BAT",
-		"OUCH.",
-		0, /* Intelligence requirement */
-		2, /* Strength requirement */
-		3, /* Weight */
-		5, /* Damage */
-		DAMAGE_TYPE_BLUNT
-	},
-	{"MACE",
-		"",
-		0, /* Intelligence requirement */
-		2, /* Strength requirement */
-		3, /* Weight */
-		5, /* Damage */
-		DAMAGE_TYPE_BLUNT
-	},
-	{"COMICLY OVRSZD SPOON",
-		"IT'S ABOUT seventy\nkilometers TALL.",
-		  5, /* Intelligence requirement */
-		250, /* Strength requirement */
-		  1, /* Weight */
-		255, /* Damage */
-		DAMAGE_TYPE_BLUNT
-	},
+		0, 0,
 
-	// Knife series
-	{"EATING KNIFE",
-		"WHAT'S FOR DINNER?\nit's you.",
-		1, /* Intelligence requirement */
-		0, /* Strength requirement */
-		0, /* Weight */
-		3, /* Damage */
-		DAMAGE_TYPE_STAB
-	},
-	{"DULL KNIFE",
-		"",
-		1, /* Intelligence requirement */
-		2, /* Strength requirement */
-		1, /* Weight */
-		4, /* Damage */
-		DAMAGE_TYPE_STAB
-	},
-	{"KITCHEN KNIFE",
-		"WHERE'S THE\nchocolate?",
-		2, /* Intelligence requirement */
-		1, /* Strength requirement */
-		1, /* Weight */
-		7, /* Damage */
-		DAMAGE_TYPE_STAB
-	},
-	{"STANDARD SWTCH KNIFE",
-		"THE foundation WON'TMISS IT.",
-		230, /* Intelligence requirement */
-		 25, /* Strength requirement */
-		  2, /* Weight */
-		255, /* Damage */
-		DAMAGE_TYPE_STAB
-	},
+		0,
 
-	// Shortsword series
-	{"BROKEN SHORTSWORD",
-		"EXTRA SHORT.",
-		 9, /* Intelligence requirement */
-		 4, /* Strength requirement */
-		 5, /* Weight */
-		 8, /* Damage */
-		DAMAGE_TYPE_SLASH
-	},
-	{"REPAIRED SHORTSWORD",
-		"QUITE BLUNT.",
-		23, /* Intelligence requirement */
-		12, /* Strength requirement */
-		11, /* Weight */
-		17, /* Damage */
-		DAMAGE_TYPE_SLASH
-	},
-	{"SHORTSWORD",
-		"IT'S bronze FOR SOMEREASON.",
-		29, /* Intelligence requirement */
-		19, /* Strength requirement */
-		24, /* Weight */
-		28, /* Damage */
-		DAMAGE_TYPE_SLASH
-	},
-	{"STEEL SHORTSWORD",
-		"BETTER THAN bronze.",
-		47, /* Intelligence requirement */
-		27, /* Strength requirement */
-		50, /* Weight */
-		55, /* Damage */
-		DAMAGE_TYPE_SLASH
-	},
-	{"TUNGSTEN SHORTSWORD",
-		"HOW DURABLE IS THIS\nTHING, ANYWAY?",
-		 68, /* Intelligence requirement */
-		 35, /* Strength requirement */
-		 80, /* Weight */
-		100, /* Damage */
-		DAMAGE_TYPE_SLASH
-	},
-	{"sefirot'S SHORTSWORD",
-		"ACTUALLY QUITE LONG.",
-		180, /* Intelligence requirement */
-		 75, /* Strength requirement */
-		140, /* Weight */
-		155, /* Damage */
-		DAMAGE_TYPE_SLASH
-	},
+		3,
 
-	// Arrow series
-	{"CLASSIC BOW",
-		"DON'T ASK WHERE THE\nARROWS COME FROM.",
-		10, /* Intelligence requirement */
-		 5, /* Strength requirement */
-		 3, /* Weight */
-		12, /* Damage */
-		DAMAGE_TYPE_PIERCING
-	},
-	{"LONGBOW",
-		"NOT FOR USE WITH A\nCELLO.",
-		13, /* Intelligence requirement */
-		 7, /* Strength requirement */
-		 5, /* Weight */
-		21, /* Damage */
-		DAMAGE_TYPE_PIERCING
-	},
-	{"COMPOUND BOW",
-		"IT'S A BOW MADE OUT\nOF COMPOUNDS.",
-		18, /* Intelligence requirement */
-		13, /* Strength requirement */
-		 9, /* Weight */
-		32, /* Damage */
-		DAMAGE_TYPE_PIERCING
-	},
-	{"CROSSBOW",
-		"GOOD FOR SHOOTING A\nhamon user.",
-		25, /* Intelligence requirement */
-		19, /* Strength requirement */
-		15, /* Weight */
-		58, /* Damage */
-		DAMAGE_TYPE_PIERCING
-	},
-	{"REPEATER",
-		"THESE ARE STILL\nBEING MADE?",
-		40, /* Intelligence requirement */
-		24, /* Strength requirement */
-		23, /* Weight */
-		92, /* Damage */
-		DAMAGE_TYPE_PIERCING
-	},
-	{"LARGE CROSSBOW",
-		"GOOD FOR SHOOTING ANatmospheric rift.",
-		 63, /* Intelligence requirement */
-		 40, /* Strength requirement */
-		 37, /* Weight */
-		150, /* Damage */
-		DAMAGE_TYPE_PIERCING
-	},
-	{"eventide",
-		"LIKE BEING SHOT BY Arainbow.",
-		163, /* Intelligence requirement */
-		 92, /* Strength requirement */
-		120, /* Weight */
-		255, /* Damage */
-		DAMAGE_TYPE_PIERCING
-	},
-
-	// Gun series
-	{"PISTOL",
-		"THE WEIGHT IS MOSTLYSPIRITUAL.",
-		 0, /* Intelligence requirement */
-		 0, /* Strength requirement */
-		30, /* Weight */
-		20, /* Damage */
-		DAMAGE_TYPE_PIERCING
-	},
-	{"FACTORY GUN",
-		"THE bullets ARE MADEOUT OF teeth.",
-		 65, /* Intelligence requirement */
-		190, /* Strength requirement */
-		150, /* Weight */
-		255, /* Damage */
-		DAMAGE_TYPE_PIERCING
-	},
+		{
+			{
+				"PUNCH",
+				192,
+				DAMAGE_TYPE_BLUNT,
+				2,
+				128
+			},
+			{
+				"FAST PUNCH",
+				128,
+				DAMAGE_TYPE_BLUNT,
+				1,
+				100
+			},
+			{
+				"THNDR CRSS SPLT",
+				255,
+				DAMAGE_TYPE_BLUNT,
+				4,
+				255
+			},
+			{
+				"DEFEND",
+				0,
+				DAMAGE_TYPE_DEFEND,
+				1,
+				64
+			}
+		}
+	}
 };
 
 const ArmorItem armor_item[] = {
-	{"CLOTHES",
-		"NOT MUCH FOR PROTECTION.",
+	{ "CLOTHES",
+		"THEY WILL NOT PROTECT YOU from me",
 
-		0, /* Weight */
+		0,
 
-		0, /* Blunt protection */
-		0, /* Piercing protection */
-		1, /* Stab protection */
-		1  /* Slash protection */
-	},
-	{"LIGHT BODYARMOR",
-		"DON'T WORRY, YOU\nSTILL HAVE CLOTHES.",
-
-		4, /* Weight */
-
-		3, /* Blunt protection */
-		2, /* Piercing protection */
-		3, /* Stab protection */
-		6  /* Slash protection */
-	},
-	{"CHAINMAIL",
-		"DON'T GET SHOT :)",
-
-		6, /* Weight */
-
-		3, /* Blunt protection */
-		0, /* Piercing protection */
-		5, /* Stab protection */
-		8  /* Slash protection */
-	},
-	{"FULLPLATE ARMOR",
-		"A LITTLE HEAVY.",
-
-		40, /* Weight */
-
-		60, /* Blunt protection */
-		80, /* Piercing protection */
-		90, /* Stab protection */
-		90  /* Slash protection */
-	},
+		0, 0, 0, 0
+	}
 };
+

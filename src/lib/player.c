@@ -16,7 +16,7 @@ Player player_new(char* name, uint8_t archetype) {
 		 player_archetype[archetype].base_intelligence,
 		 player_archetype[archetype].base_strength,
 		 player_archetype[archetype].base_speed,
-		 1, 1, 1, "PLAYER"},
+		 1, 0, 0, "PLAYER"},
 		0,
 		{0, 0, 0, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 0, 0},
