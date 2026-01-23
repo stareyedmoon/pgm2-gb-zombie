@@ -40,7 +40,7 @@ static uint16_t get_damage_random(void) {
 }
 
 static uint8_t get_enemy_protection(EncounterEntity* attacker, EncounterEntity* target) {
-    uint8_t damage_type = weapon_item[attacker->encounterable->weapon].damage_type;
+    uint8_t damage_type = DAMAGE_TYPE_BLUNT; // FIXME
 
     switch (damage_type) {
     case DAMAGE_TYPE_BLUNT:    return armor_item[target->encounterable->armor].blunt_protection;

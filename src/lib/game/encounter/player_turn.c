@@ -13,8 +13,17 @@ static void draw_player_item_menu(EncounterEntity* player, EncounterEntity* enem
 static void draw_player_info_menu(EncounterEntity* player, EncounterEntity* enemy) {}
 static void draw_player_run_menu(EncounterEntity* player, EncounterEntity* enemy) {}
 
-static void set_zombie_shake(uint16_t damage) {
+static void set_enemy_shake(uint16_t damage) {
+	// The base animation used for the enemy shake.
+	// This is scaled according to the damage so it moves more if it hurts more.
 	static const int8_t damage_shake[16] = {25, 49, 55, 50, 38, 22, 7, -6, -16, -20, -18, -16, -9, -2, -1, 0};
+	
+	// The scale of the shake. A value of 128 is unscaled.
+	// The values of this LUT are for the power-of-2 bounderies, and are linearly interpolated between.
+	// As an example, for 0x00C3 (95) damage, it would interpolate between a scale of 65 and 99.
+	// For the linear interpolation the remaining bits after the MSB are used.
+	// This means that for this example a value of 0x86 ((0xC3 << 1) & 0xFF) is used.
+	// The result is ((65*0x79)+(99*0x86))/255, giving 82 for this example.
 	static const uint8_t shake_scale_linexp_lut[17] = {
 		0, 1, 3, 6, 12, 18, 28, 43, 65, 99, 151, 215, 252, 255, 255, 255, 255
 	};
@@ -23,12 +32,15 @@ static void set_zombie_shake(uint16_t damage) {
 
 	if (damage > 0) {
 		uint8_t damage_exp = log2l(damage);
+
 		shake_scale = linear_interp(
 			shake_scale_linexp_lut[damage_exp],
 			shake_scale_linexp_lut[damage_exp + 1],
-			0xFF & (damage_exp < 8
-				? damage << (8 - damage_exp)
-				: damage >> (damage_exp - 8))
+		
+			// This gets the remaining bits after the MSB and shifts it to take 8 bits
+			0xFF & (damage_exp <= 8
+				? damage << (9 - damage_exp)
+				: damage >> (damage_exp - 9))
 		);
 	}
 
@@ -37,11 +49,23 @@ static void set_zombie_shake(uint16_t damage) {
 
 		scaled_shake *= shake_scale;
 		scaled_shake /= 128;
+		// A value of 104 or above is off-screen, so this bounds check is to make sure it doesn't wrap around.
 		if (scaled_shake > 104) scaled_shake = 104;
 		if (scaled_shake < -104) scaled_shake = -104;
 
 		encounter_enemy_animation[i] = scaled_shake;
 	}
+}
+static void set_damage_animation(uint16_t damage, uint8_t crit) {
+	for (uint8_t i = 0; i < 5; i += 1) {
+		encounter_animation_damage_numbers[4-i] = damage % 10;
+		damage /= 10;
+	}
+    for (uint8_t i = 0; i < 4; i += 1) {
+        if (encounter_animation_damage_numbers[i]) break;
+        encounter_animation_damage_numbers[i] = 10;
+    }
+	encounter_animation_damage_crit = crit;
 }
 
 static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) {
@@ -49,8 +73,10 @@ static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) 
 	
 	enemy->encounterable->health -= MIN(enemy->encounterable->health, damage.damage);
 
-	set_zombie_shake(damage.damage);
+	set_enemy_shake(damage.damage);
+	set_damage_animation(damage.damage, damage.crit);
 	encounter_enemy_animation_index = 0;
+	encounter_animation_damage_animation_index = 0;
 	
 	// TODO - Slash animation
 	// TODO - Show damage

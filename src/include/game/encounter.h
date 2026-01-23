@@ -44,6 +44,9 @@ extern int8_t encounter_enemy_animation[16];
 extern uint8_t encounter_enemy_animation_index;
 extern uint8_t encounter_text_scroll;
 
+extern uint8_t encounter_animation_damage_numbers[5];
+extern uint8_t encounter_animation_damage_crit;
+extern uint8_t encounter_animation_damage_animation_index;
 
 void encounter_enable_interrupts(void);
 void encounter_disable_interrupts(void);

@@ -1,6 +1,7 @@
 #include <gb/gb.h>
 
 #include <game/encounter.h>
+#include <engine.h>
 
 #include <defines.h>
 #include <general.h>
@@ -9,6 +10,23 @@ int8_t encounter_enemy_animation[16] = {0};
 uint8_t encounter_enemy_animation_index = 16;
 
 uint8_t encounter_text_scroll = 0;
+
+
+uint8_t encounter_animation_damage_animation_index = 120;
+
+uint8_t encounter_animation_damage_numbers[5] = {0,0,0,0,0};
+uint8_t encounter_animation_damage_crit = 0;
+
+static uint8_t encounter_animation_damage_sprites[5] = {255,255,255,255,255};
+
+static uint8_t encounter_animation_damage_x = 0;
+static uint8_t encounter_animation_damage_y = 0;
+
+static int8_t encounter_animation_velocity_x = 0;
+static int8_t encounter_animation_velocity_y = 0;
+
+static const uint8_t encounter_animation_damage_floor = 240;
+
 
 static void lcd_int_handler(void) {
     disable_interrupts();
@@ -48,7 +66,72 @@ static void lcd_int_handler(void) {
 
         LCD_LYC = 0;
 
-	if (encounter_enemy_animation_index < 16) encounter_enemy_animation_index += 1;
+		if (encounter_animation_damage_animation_index == 0) {
+			encounter_animation_damage_x = 0;
+			encounter_animation_damage_y = 144;
+			encounter_animation_velocity_x = 6;
+			encounter_animation_velocity_y = -9;
+			
+			set_vram_byte(&LCD_OBP1, 0xE4);
+		
+			for (uint8_t i = 0; i < 5; i++) {
+				if (encounter_animation_damage_sprites[i] == 255) {
+					encounter_animation_damage_sprites[i] = engine_alloc_sprite();
+				}
+			
+				set_vram_byte(OAM + encounter_animation_damage_sprites[i]*4 + 2, encounter_animation_damage_numbers[i]);
+				set_vram_byte(OAM + encounter_animation_damage_sprites[i]*4 + 3, 0x10);
+			
+			}
+		}
+
+		if (encounter_enemy_animation_index < 16) encounter_enemy_animation_index += 1;
+
+		if (encounter_animation_damage_animation_index < 120) {
+			encounter_animation_velocity_y += 1;
+
+			encounter_animation_damage_x += encounter_animation_velocity_x;
+			encounter_animation_damage_y += encounter_animation_velocity_y;
+
+			if (encounter_animation_damage_y > encounter_animation_damage_floor) {
+				if (encounter_animation_velocity_y > 3) {
+					encounter_animation_damage_y = 2*encounter_animation_damage_floor - encounter_animation_damage_y;
+					encounter_animation_velocity_y = -(encounter_animation_velocity_y / 2);
+				}
+				else {
+					encounter_animation_velocity_y = 0;
+					encounter_animation_damage_y = encounter_animation_damage_floor;
+				}
+				encounter_animation_velocity_x = (encounter_animation_velocity_x * 5) / 7;
+			}
+		
+			for (uint8_t i = 0; i < 5; i += 1) {
+				set_vram_byte(OAM + encounter_animation_damage_sprites[i]*4 + 0, encounter_animation_damage_y / 4);
+				set_vram_byte(OAM + encounter_animation_damage_sprites[i]*4 + 1, encounter_animation_damage_x / 4 + 60 + 8*i);
+		
+				//set_vram_byte(OAM + encounter_animation_damage_sprites[i]*4 + 0, 32);
+				//set_vram_byte(OAM + encounter_animation_damage_sprites[i]*4 + 1, 32 + i*8);
+			}
+
+			encounter_animation_damage_animation_index += 1;
+
+			if (encounter_animation_damage_animation_index == 90) {
+				set_vram_byte(&LCD_OBP1, 0x92);
+			}
+			if (encounter_animation_damage_animation_index == 105) {
+				set_vram_byte(&LCD_OBP1, 0x40);
+
+			}
+
+			if (encounter_animation_damage_animation_index == 120) {
+				for (uint8_t i = 0; i < 5; i++) {
+					engine_free_sprite(encounter_animation_damage_sprites[i]);
+					encounter_animation_damage_sprites[i] = 255;
+				}
+			}
+		}
+
+		rand8();
     }
 	enable_interrupts();
 }

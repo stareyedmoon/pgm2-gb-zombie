@@ -212,6 +212,8 @@ uint8_t engine_alloc_sprite(void) {
 }
 
 void engine_free_sprite(uint8_t sprite) {
+	if (sprite == 255) return;
+
 	ASSERT(sprite < MAX_HARDWARE_SPRITES, "Attempted to free invalid sprite index.");
 	ASSERT(e_sprite_active[sprite], "Attempted to free not-in-use sprite.");
 
