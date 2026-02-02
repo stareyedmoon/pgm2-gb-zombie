@@ -8,10 +8,37 @@
 #include <defines.h>
 #include <general.h>
 
-static void draw_player_attack_menu(EncounterEntity* player, EncounterEntity* enemy) {}
-static void draw_player_item_menu(EncounterEntity* player, EncounterEntity* enemy) {}
-static void draw_player_info_menu(EncounterEntity* player, EncounterEntity* enemy) {}
-static void draw_player_run_menu(EncounterEntity* player, EncounterEntity* enemy) {}
+#include <engine.h>
+
+#include <item.h>
+
+// Possible mechanic for running away
+//   The player has to survive some number of turns without agency while the enemy attacks them
+
+static void draw_player_attack_menu(EncounterEntity* player, EncounterEntity* enemy) {
+    char* const menu[121];
+
+    WeaponItem* weapon = &weapon_item[player->encounterable->weapon];
+
+    format(menu, "%s\n\n %s\n %s\n %s\n %s",
+        enemy->encounterable->name,
+        weapon->attacks[0].name,
+        weapon->attacks[1].name,
+        weapon->attacks[2].name,
+        weapon->attacks[3].name
+    );
+
+    engine_render_text(TILEMAP0, menu, 0, 10, 20, 6, false, TEXTMODE_NOSCROLL);
+}
+static void draw_player_item_menu(EncounterEntity* player, EncounterEntity* enemy) {
+    engine_render_text(TILEMAP0, "ITEMS!", 0, 10, 20, 6, false, TEXTMODE_NOSCROLL);
+}
+static void draw_player_info_menu(EncounterEntity* player, EncounterEntity* enemy) {
+    engine_render_text(TILEMAP0, "INFORMATION", 0, 10, 20, 6, false, TEXTMODE_NOSCROLL);
+}
+static void draw_player_run_menu(EncounterEntity* player, EncounterEntity* enemy) {
+    engine_render_text(TILEMAP0, "SCRET JOESTAR FAMILYTECHNIQUE", 0, 10, 20, 6, false, TEXTMODE_NOSCROLL);
+}
 
 static void set_enemy_shake(uint16_t damage) {
 	// The base animation used for the enemy shake.
@@ -69,7 +96,32 @@ static void set_damage_animation(uint16_t damage, uint8_t crit) {
 }
 
 static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) {
-	Damage damage = calculate_damage(player, enemy);
+    static uint8_t selected_attack = 0;
+    
+    encounter_just_pressed &= ~J_A;
+
+    set_vram_byte(TILEMAP0 + 0x180 + 0x20*selected_attack, 0x9B);
+
+    while (true) {
+        if (encounter_just_pressed & J_UP && selected_attack > 0) {
+            set_vram_byte(TILEMAP0 + 0x180 + 0x20*selected_attack, 0x80);
+            selected_attack -= 1;
+            set_vram_byte(TILEMAP0 + 0x180 + 0x20*selected_attack, 0x9B);
+        }
+        if (encounter_just_pressed & J_DOWN && selected_attack < 3) {
+            set_vram_byte(TILEMAP0 + 0x180 + 0x20*selected_attack, 0x80);
+            selected_attack += 1;
+            set_vram_byte(TILEMAP0 + 0x180 + 0x20*selected_attack, 0x9B);
+        }
+        
+        if (encounter_just_pressed & J_A) break;
+
+        vsync();
+    }
+
+    encounter_turn_counter_player -= weapon_item[player->encounterable->weapon].attacks[selected_attack].time_cost;
+
+	Damage damage = calculate_damage(player, enemy, selected_attack);
 	
 	enemy->encounterable->health -= MIN(enemy->encounterable->health, damage.damage);
 
@@ -79,7 +131,6 @@ static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) 
 	encounter_animation_damage_animation_index = 0;
 	
 	// TODO - Slash animation
-	// TODO - Show damage
 }
 static void player_turn_items(EncounterEntity* player, EncounterEntity* enemy) {
 
@@ -97,21 +148,13 @@ void encounter_player_turn(EncounterEntity* player, EncounterEntity* enemy) {
     uint8_t menu_button = 0;
     bool menu_changed = true;
 
-    uint8_t prev_joy = joypad();
-
     while (true) {
-		uint8_t cur_joy = joypad();
-		// Bitmaps of which buttons were just pressed and released.
-		uint8_t just_pressed = cur_joy & ~prev_joy; 
-		uint8_t just_released = prev_joy & ~cur_joy;
-
-
-        if (just_pressed & J_LEFT && menu_button > 0) {
+        if (encounter_just_pressed & J_LEFT && menu_button > 0) {
             menu_button -= 1;
             menu_changed = true;
             encounter_button_move_left(menu_button);
         }
-        if (just_pressed & J_RIGHT && menu_button < 3) {
+        if (encounter_just_pressed & J_RIGHT && menu_button < 3) {
             menu_button += 1;
             menu_changed = true;
             encounter_button_move_right(menu_button);
@@ -129,12 +172,11 @@ void encounter_player_turn(EncounterEntity* player, EncounterEntity* enemy) {
             menu_changed = false;
         }
 
-        if (just_pressed & J_A) {
+        if (encounter_just_pressed & J_A) {
             // Attack
             if (menu_button == 0) {
                 player_turn_attack(player, enemy);
                 encounter_draw_enemy_health_bar(enemy->encounterable->health, enemy->encounterable->max_health);
-                encounter_turn_counter_player -= 128;
             }
             // Item
             else if (menu_button == 1) {
@@ -145,9 +187,6 @@ void encounter_player_turn(EncounterEntity* player, EncounterEntity* enemy) {
 
             break;
         }
-
-
-        prev_joy = cur_joy;
 
         vsync();
     }

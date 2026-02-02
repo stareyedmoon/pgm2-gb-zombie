@@ -42,4 +42,15 @@ uint8_t log2l(uint16_t val);
 /// @brief Computes subtraction with a minimum value of 0.
 #define SATURATING_SUB(a, b) ((b) > (a) ? 0 : (a) - (b))
 
+/// @brief Writes a formatted string to buffer
+/// @param buffer Output buffer
+/// @param format String format
+/// @note The supported format specifiers are:
+///
+///       `%s` - string
+///
+///       `%b` - 8-bit unsigned integer
+/// @warning This function does not do any bounds checking.
+void format(char* buffer, const char* format, ...);
+
 #endif // _general_h_INCLUDE

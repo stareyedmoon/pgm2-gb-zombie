@@ -28,6 +28,11 @@ static int8_t encounter_animation_velocity_y = 0;
 static const uint8_t encounter_animation_damage_floor = 240;
 
 
+uint8_t encounter_held = 0;
+uint8_t encounter_just_pressed = 0;
+uint8_t encounter_just_released = 0;
+
+
 static void lcd_int_handler(void) {
     disable_interrupts();
 	if (LCD_LYC == 0) { // Enemy
@@ -35,6 +40,11 @@ static void lcd_int_handler(void) {
         LCD_SCY = 0;
         
         LCD_LYC = 60;
+
+		uint8_t joy = joypad();
+		encounter_just_pressed = joy & ~encounter_held;
+		encounter_just_released = encounter_held & ~joy;
+		encounter_held = joy;
 	}
 	else if (LCD_LYC == 60) { // Enemy health and turn bar
         LCD_SCX = 0;

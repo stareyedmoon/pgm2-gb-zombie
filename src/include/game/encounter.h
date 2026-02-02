@@ -48,6 +48,10 @@ extern uint8_t encounter_animation_damage_numbers[5];
 extern uint8_t encounter_animation_damage_crit;
 extern uint8_t encounter_animation_damage_animation_index;
 
+extern uint8_t encounter_held;
+extern uint8_t encounter_just_pressed;
+extern uint8_t encounter_just_released;
+
 void encounter_enable_interrupts(void);
 void encounter_disable_interrupts(void);
 
@@ -68,7 +72,7 @@ void encounter_draw_player_turn_bar(uint8_t turn_counter, bool full);
 void encounter_draw_enemy_turn_bar(uint8_t turn_counter, bool full);
 
 EffectiveStats calculate_effective_stats(EncounterEntity* entity);
-Damage calculate_damage(EncounterEntity* attacker, EncounterEntity* target);
+Damage calculate_damage(EncounterEntity* attacker, EncounterEntity* target, uint8_t attack);
 
 void encounter_player_turn(EncounterEntity* player, EncounterEntity* enemy);
 void encounter_enemy_turn(EncounterEntity* player, EncounterEntity* enemy);

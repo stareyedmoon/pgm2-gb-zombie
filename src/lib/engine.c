@@ -123,7 +123,9 @@ void engine_init(void) {
 	//SHOW_SPRITES;
 	//SHOW_BKG;
 
-	LCD_CTRL |= 0b01000111;
+	//LCD_CTRL = 0b11000011;
+	LCD_CTRL |= 0b01000011;
+	//SHOW_SPRITES;
 
 	//set_tile_data(64, 64, font_tiles, 0x90);
 
@@ -145,7 +147,7 @@ void engine_render_text(uint8_t* const restrict tilemap,
 
 	for (uint16_t cy = y; cy < y+max_height; cy += 1) {
 		for (uint16_t cx = x; cx < x+max_width; cx += 1) {
-			set_vram_byte(tilemap + cy*BUFFER_WIDTH + cx, char_to_tile(80, ' '));
+			set_vram_byte(tilemap + cy*BUFFER_WIDTH + cx, char_to_tile(128, ' '));
 		}
 	}
 
@@ -154,7 +156,7 @@ void engine_render_text(uint8_t* const restrict tilemap,
 
 	for (; *string; string++) {
 		if (*string >= 32) {
-			set_vram_byte(tilemap + ((y+yoff)*BUFFER_WIDTH) + x+xoff, char_to_tile(80, *string));
+			set_vram_byte(tilemap + ((y+yoff)*BUFFER_WIDTH) + x+xoff, char_to_tile(128, *string));
 		}
 		else if (*string == '\n') {
 			xoff = max_width - 1;
@@ -178,7 +180,7 @@ void engine_render_text(uint8_t* const restrict tilemap,
 					}
 				}
 				for (uint16_t cx = x; cx < (x+max_width); cx += 1) {
-					set_vram_byte(tilemap + (y + max_height - 1)*BUFFER_WIDTH + cx, char_to_tile(80, ' '));
+					set_vram_byte(tilemap + (y + max_height - 1)*BUFFER_WIDTH + cx, char_to_tile(128, ' '));
 				}
 			}
 		}
