@@ -7,23 +7,8 @@
 
 #define READ_BIT(src, off) (src[off/8]&(1<<(7-(off++%8)))?1:0)
 
-static bool read_bit(uint8_t* src, uint16_t* offset) {
-	bool value = src[*offset / 8] & (1 << (7 - *offset % 8));
-	*offset += 1;
-	return value;
-}
-// TODO - Optimize to use at most 2 reads instead of `count` reads.
-//        Or one 16 bit read, I suppose.
-static uint8_t read_bits(uint8_t* src, uint16_t* offset, uint8_t count) {
-	ASSERT(count <= 8, "read_bits only supports up to 8 bits.");
-	
-	uint8_t value = 0;
-	for (uint8_t i = 0; i < count; i++) {
-		value <<= 1;
-		value |= read_bit(src, offset) ? 1 : 0;
-	}
-	return value;
-}
+bool read_bit(uint8_t* src, uint16_t* offset);
+uint8_t read_bits(uint8_t* src, uint16_t* offset, uint8_t count);
 
 /************************** TODO **************************/
 /* Reimplement compression algorithm in assembly.         */
