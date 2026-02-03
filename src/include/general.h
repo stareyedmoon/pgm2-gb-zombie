@@ -49,6 +49,10 @@ uint8_t log2l(uint16_t val);
 ///
 ///       `%s` - string
 ///
+///       `%U` - string converted to upper-case (unscrambled)
+///
+///       `%L` - string converted to lower-case (scrambled)
+///
 ///       `%b` - 8-bit unsigned integer
 /// @warning This function does not do any bounds checking.
 void format(char* buffer, const char* format, ...);
