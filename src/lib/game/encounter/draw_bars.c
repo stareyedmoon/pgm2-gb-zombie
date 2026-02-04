@@ -36,52 +36,74 @@ void encounter_draw_initial_bar_tiles(void) {
 }
 
 void encounter_draw_player_health_bar(uint16_t health, uint16_t max_health) {
-    uint8_t fill = (health * 64) / max_health;
-    
-    uint8_t full_bars = MIN(fill / 8, 7);
-    uint8_t partial = (0xFF) >> (fill % 8);
-    if (health == max_health) partial = 0x00;
+    static uint8_t current_fill = 0;
 
-    for (uint8_t i = 0; i < full_bars; i += 1) {
-        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 2, 0x00);
-        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 3, 0x00);
-        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 4, 0x00);
-        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 5, 0x00);
+    uint8_t fill = (health * 64 + max_health - 1) / max_health;
+    
+    if (fill == current_fill) return;
+    else if (fill < current_fill) {
+        for (uint8_t i = current_fill - 1; i >= fill && i != 255; i -= 1) {
+            uint8_t v = 0xFF >> (i & 7);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + (i & 0xF8)*2 + 2, v);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + (i & 0xF8)*2 + 3, v);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + (i & 0xF8)*2 + 4, v);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + (i & 0xF8)*2 + 5, v);
+
+            vsync();
+        }
     }
-    set_vram_byte(TILEBLOCK2 + 0x0380 + full_bars*16 + 2, partial);
-    set_vram_byte(TILEBLOCK2 + 0x0380 + full_bars*16 + 3, partial);
-    set_vram_byte(TILEBLOCK2 + 0x0380 + full_bars*16 + 4, partial);
-    set_vram_byte(TILEBLOCK2 + 0x0380 + full_bars*16 + 5, partial);
-    for (uint8_t i = full_bars + 1; i < 8; i += 1) {
-        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 2, 0xFF);
-        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 3, 0xFF);
-        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 4, 0xFF);
-        set_vram_byte(TILEBLOCK2 + 0x0380 + i*16 + 5, 0xFF);
+    else { // fill > current_fill
+        for (uint8_t i = current_fill & 0xF8; i < (fill & 0xF8); i += 8) {
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*2 + 2, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*2 + 3, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*2 + 4, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + i*2 + 5, 0x00);
+        }
+        if (fill & 7) {
+            uint8_t part = 0xFF >> (fill & 7);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + (fill & 0xF8)*2 + 2, part);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + (fill & 0xF8)*2 + 3, part);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + (fill & 0xF8)*2 + 4, part);
+            set_vram_byte(TILEBLOCK2 + 0x0380 + (fill & 0xF8)*2 + 5, part);
+        }
     }
+
+    current_fill = fill;
 }
 void encounter_draw_enemy_health_bar(uint16_t health, uint16_t max_health) {
-    uint8_t fill = (health * 64) / max_health;
-    
-    uint8_t full_bars = MIN(fill / 8, 7);
-    uint8_t partial = (0xFF) >> (fill % 8);
-    if (health == max_health) partial = 0x00;
+    static uint8_t current_fill = 0;
 
-    for (uint8_t i = 0; i < full_bars; i += 1) {
-        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 2, 0x00);
-        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 3, 0x00);
-        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 4, 0x00);
-        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 5, 0x00);
+    uint8_t fill = (health * 64 + max_health - 1) / max_health;
+    
+    if (fill == current_fill) return;
+    else if (fill < current_fill) {
+        for (uint8_t i = current_fill - 1; i >= fill && i != 255; i -= 1) {
+            uint8_t v = 0xFF >> (i & 7);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + (i & 0xF8)*2 + 2, v);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + (i & 0xF8)*2 + 3, v);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + (i & 0xF8)*2 + 4, v);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + (i & 0xF8)*2 + 5, v);
+
+            vsync();
+        }
     }
-    set_vram_byte(TILEBLOCK2 + 0x0300 + full_bars*16 + 2, partial);
-    set_vram_byte(TILEBLOCK2 + 0x0300 + full_bars*16 + 3, partial);
-    set_vram_byte(TILEBLOCK2 + 0x0300 + full_bars*16 + 4, partial);
-    set_vram_byte(TILEBLOCK2 + 0x0300 + full_bars*16 + 5, partial);
-    for (uint8_t i = full_bars + 1; i < 8; i += 1) {
-        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 2, 0xFF);
-        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 3, 0xFF);
-        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 4, 0xFF);
-        set_vram_byte(TILEBLOCK2 + 0x0300 + i*16 + 5, 0xFF);
+    else { // fill > current_fill
+        for (uint8_t i = current_fill & 0xF8; i < (fill & 0xF8); i += 8) {
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*2 + 2, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*2 + 3, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*2 + 4, 0x00);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + i*2 + 5, 0x00);
+        }
+        if (fill & 7) {
+            uint8_t part = 0xFF >> (fill & 7);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + (fill & 0xF8)*2 + 2, part);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + (fill & 0xF8)*2 + 3, part);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + (fill & 0xF8)*2 + 4, part);
+            set_vram_byte(TILEBLOCK2 + 0x0300 + (fill & 0xF8)*2 + 5, part);
+        }
     }
+
+    current_fill = fill;
 }
 
 void encounter_draw_player_turn_bar(uint8_t turn_counter, bool full) {
