@@ -26,8 +26,8 @@ void format(char* buffer, const char* format, ...) {
 		else {
 			format += 1;
 
-			uint8_t val, j;
-			uint16_t val16;
+			uint8_t j;
+			uint16_t val;
 			uintptr_t valptr;
 			char out[5] = {' ', ' ', ' ', ' ', '0'};
 
@@ -54,30 +54,30 @@ void format(char* buffer, const char* format, ...) {
 				break;
 			
 			case 'b':
-				val = va_arg(args, uint8_t);
+				val = (uint8_t)va_arg(args, uint16_t);
 				j = 5;
 				for (; val; val /= 10) out[--j] = '0' + val % 10;
-				for (; j < 5; *(buffer++) = out[j++]);
+				for (j = MIN(j,4); j < 5; *(buffer++) = out[j++]);
 				break;
 			
 			case 'B':
-				val = va_arg(args, uint8_t);
+				val = (uint8_t)va_arg(args, uint16_t);
 				j = 5;
 				for (; val; val /= 10) out[--j] = '0' + val % 10;
 				for (j = 2; j < 5; *(buffer++) = out[j++]);
 				break;
 				
 			case 'w':
-				val16 = va_arg(args, uint16_t);
+				val = va_arg(args, uint16_t);
 				j = 5;
-				for (; val16; val16 /= 10) out[--j] = '0' + val16 % 10;
-				for (; j < 5; *(buffer++) = out[j++]);
+				for (; val; val /= 10) out[--j] = '0' + val % 10;
+				for (j = MIN(j,4); j < 5; *(buffer++) = out[j++]);
 				break;
 			
 			case 'W':
-				val16 = va_arg(args, uint16_t);
+				val = va_arg(args, uint16_t);
 				j = 5;
-				for (; val16; val16 /= 10) out[--j] = '0' + val16 % 10;
+				for (; val; val /= 10) out[--j] = '0' + val % 10;
 				for (j = 0; j < 5; *(buffer++) = out[j++]);
 				break;
 				
