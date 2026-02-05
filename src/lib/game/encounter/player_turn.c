@@ -20,12 +20,12 @@ static void draw_player_attack_menu(EncounterEntity* player, EncounterEntity* en
 
     WeaponItem* weapon = &weapon_item[player->encounterable->weapon];
 
-    format(menu, "%s\n\n %s\n %s\n %s\n %s",
+    format(menu, "%s\n\n %L\n %L\n %L\n %L",
         enemy->encounterable->name,
-        weapon->attacks[0].name,
-        weapon->attacks[1].name,
-        weapon->attacks[2].name,
-        weapon->attacks[3].name
+        player->attack_cooldown[0] != 0, weapon->attacks[0].name,
+        player->attack_cooldown[1] != 0, weapon->attacks[1].name,
+        player->attack_cooldown[2] != 0, weapon->attacks[2].name,
+        player->attack_cooldown[3] != 0, weapon->attacks[3].name
     );
 
     engine_render_text(TILEMAP0, menu, 0, 10, 20, 6, false, TEXTMODE_NOSCROLL);
@@ -125,12 +125,13 @@ static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) 
             set_vram_byte(TILEMAP0 + 0x180 + 0x20*selected_attack, 0x9B);
         }
         
-        if (encounter_just_pressed & J_A) break;
+        if (encounter_just_pressed & J_A && player->attack_cooldown[selected_attack] == 0) break;
 
         vsync();
     }
 
     encounter_turn_counter_player -= weapon_item[player->encounterable->weapon].attacks[selected_attack].time_cost;
+    player->attack_cooldown[selected_attack] = weapon_item[player->encounterable->weapon].attacks[selected_attack].cooldown;
 
 	Damage damage = calculate_damage(player, enemy, selected_attack);
 	
@@ -158,6 +159,10 @@ void encounter_player_turn(EncounterEntity* player, EncounterEntity* enemy) {
     
     uint8_t menu_button = 0;
     bool menu_changed = true;
+
+    for (uint8_t i = 0; i < 4; i += 1) {
+        if (player->attack_cooldown[i] > 0) player->attack_cooldown[i] -= 1;
+    }
 
     while (true) {
         if (encounter_just_pressed & J_LEFT && menu_button > 0) {
@@ -195,6 +200,8 @@ void encounter_player_turn(EncounterEntity* player, EncounterEntity* enemy) {
                 encounter_turn_counter_player -= 32;
             }
             // TODO - Implement running away
+
+            engine_render_text(TILEMAP0, "", 0, 10, 20, 6, false, TEXTMODE_NOSCROLL);
 
             break;
         }

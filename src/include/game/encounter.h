@@ -28,6 +28,8 @@ typedef struct {
 
     EffectiveStats effective_stats;
     bool is_defending;
+
+    uint8_t attack_cooldown[4];
 } EncounterEntity;
 
 typedef struct {
