@@ -54,6 +54,14 @@ uint8_t log2l(uint16_t val);
 ///       `%L` - string converted to lower-case (scrambled)
 ///
 ///       `%b` - 8-bit unsigned integer
+///
+///       `%B` - 8-bit unsigned integer padded to 3 characters with spaces (right-aligned)
+///
+///       `%w` - 16-bit unsigned integer
+///
+///       `%W` - 16-bit unsigned integer padded to 5 characters with spaces (right-aligned)
+///
+///       `%p` - Pointer as hex
 /// @warning This function does not do any bounds checking.
 void format(char* buffer, const char* format, ...);
 
