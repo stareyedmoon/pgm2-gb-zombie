@@ -139,7 +139,11 @@ _read_bits_shift_loop:
 	jp (hl)
 
 
-
+_tmp_padding:
+	.db #0
+	.db #0
+	.db #0
+	.db #0
 
 _read_bit_lut:
 	.db #0x80
@@ -151,14 +155,6 @@ _read_bit_lut:
 	.db #0x02
 	.db #0x01
 
-_tmp_padding:
-	.db #0
-	.db #0
-	.db #0
-	.db #0
-	.db #0
-	.db #0
-	.db #0
 
 _read_bits_lut:
 	.db #0x01

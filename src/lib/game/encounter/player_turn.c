@@ -34,7 +34,18 @@ static void draw_player_item_menu(EncounterEntity* player, EncounterEntity* enem
     engine_render_text(TILEMAP0, "ITEMS!", 0, 10, 20, 6, false, TEXTMODE_NOSCROLL);
 }
 static void draw_player_info_menu(EncounterEntity* player, EncounterEntity* enemy) {
-    engine_render_text(TILEMAP0, "INFORMATION", 0, 10, 20, 6, false, TEXTMODE_NOSCROLL);
+    char* const info[121];
+
+    format(info, "%s\n HP %W  LV  %WVIT %W  INT %WSTR %W  SPD %WWPN %s\nARM %s",
+        enemy->encounterable->name,
+        enemy->encounterable->health, enemy->encounterable->level,
+        enemy->encounterable->max_health, enemy->encounterable->intelligence,
+        enemy->encounterable->strength, enemy->encounterable->speed,
+        weapon_item[enemy->encounterable->weapon].name,
+        armor_item[enemy->encounterable->armor].name
+    );
+
+    engine_render_text(TILEMAP0, info, 0, 10, 20, 8, false, TEXTMODE_NOSCROLL);
 }
 static void draw_player_run_menu(EncounterEntity* player, EncounterEntity* enemy) {
     engine_render_text(TILEMAP0, "SCRET JOESTAR FAMILYTECHNIQUE", 0, 10, 20, 6, false, TEXTMODE_NOSCROLL);
