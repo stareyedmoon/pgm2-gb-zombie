@@ -141,8 +141,6 @@ static void player_turn_attack(EncounterEntity* player, EncounterEntity* enemy) 
 	set_damage_animation(damage.damage, damage.crit);
 	encounter_enemy_animation_index = 0;
 	encounter_animation_damage_animation_index = 0;
-	
-	// TODO - Slash animation
 }
 static void player_turn_items(EncounterEntity* player, EncounterEntity* enemy) {
 
@@ -199,15 +197,19 @@ void encounter_player_turn(EncounterEntity* player, EncounterEntity* enemy) {
                 player_turn_items(player, enemy);
                 encounter_turn_counter_player -= 32;
             }
+            // Info
+            else if (menu_button == 2) {
+                continue;
+            }
             // TODO - Implement running away
-
-            engine_render_text(TILEMAP0, "", 0, 10, 20, 6, false, TEXTMODE_NOSCROLL);
 
             break;
         }
-
+        
         vsync();
     }
+
+    engine_render_text(TILEMAP0, "", 0, 10, 20, 6, false, TEXTMODE_NOSCROLL);
 
     encounter_swap_button_color(menu_button);
     // TODO - Put this code somewhere else or figure out a way to remove it entirely.
