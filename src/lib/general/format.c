@@ -6,8 +6,10 @@
 
 // Supported formats
 // - %s : string
-// - %U : string to upper-case
-// - %L : string to lower-case
+// - %u : string to upper-case
+// - %U : string to upper-case if bool
+// - %l : string to lower-case
+// - %L : string to lower-case if bool
 // - %b : 8-bit unsigned integer
 // - %B : 8-bit unsigned integer padded with spaces (right-aligned)
 // - %w : 16-bit unsigned integer
@@ -31,15 +33,20 @@ void format(char* buffer, const char* format, ...) {
 
 			switch (*(format++)) {
 			case 's':
+				basic_string:
 				for (const char* str = va_arg(args, char*); *str;) *(buffer++) = *(str++);
 				break;
 			case 'U':
+				if (!va_arg(args, uint16_t)) goto basic_string;
+			case 'u':
 				for (const char* str = va_arg(args, char*); *str;) {
 					if (*str >= 'a' && *str <= 'z') *(buffer++) = (*str++) & ~0x20;
 					else *(buffer++) = *(str++);
 				}
 				break;
 			case 'L':
+				if (!va_arg(args, uint16_t)) goto basic_string;
+			case 'l':
 				for (const char* str = va_arg(args, char*); *str;) {
 					if (*str >= 'A' && *str <= 'Z') *(buffer++) = (*str++) | 0x20;
 					else *(buffer++) = *(str++);

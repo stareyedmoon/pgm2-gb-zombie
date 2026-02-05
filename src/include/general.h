@@ -49,9 +49,13 @@ uint8_t log2l(uint16_t val);
 ///
 ///       `%s` - string
 ///
-///       `%U` - string converted to upper-case (unscrambled)
+///       `%u` - string converted to upper-case (unscrambled)
 ///
-///       `%L` - string converted to lower-case (scrambled)
+///       `%U` - string converted to upper-case (unscrambled) if bool is true
+///
+///       `%l` - string converted to lower-case (scrambled)
+///
+///       `%L` - string converted to lower-case (scrambled) if bool is true
 ///
 ///       `%b` - 8-bit unsigned integer
 ///
