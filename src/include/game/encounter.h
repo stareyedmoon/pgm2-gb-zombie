@@ -74,6 +74,7 @@ void encounter_draw_player_turn_bar(uint8_t turn_counter, bool full);
 void encounter_draw_enemy_turn_bar(uint8_t turn_counter, bool full);
 
 EffectiveStats calculate_effective_stats(EncounterEntity* entity);
+uint16_t calculate_expected_damage(EncounterEntity* attacker, EncounterEntity* target, uint8_t attack);
 Damage calculate_damage(EncounterEntity* attacker, EncounterEntity* target, uint8_t attack);
 
 void encounter_player_turn(EncounterEntity* player, EncounterEntity* enemy);

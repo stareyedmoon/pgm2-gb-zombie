@@ -46,13 +46,36 @@ static uint16_t get_damage_random(void) {
 }
 
 static uint8_t get_enemy_protection(EncounterEntity* attacker, EncounterEntity* target, uint8_t damage_type) {
+    uint8_t protection = 0;
     switch (damage_type) {
-    case DAMAGE_TYPE_BLUNT:    return armor_item[target->encounterable->armor].blunt_protection;
-    case DAMAGE_TYPE_PIERCING: return armor_item[target->encounterable->armor].piercing_protection;
-    case DAMAGE_TYPE_STAB:     return armor_item[target->encounterable->armor].stab_protection;
-    case DAMAGE_TYPE_SLASH:    return armor_item[target->encounterable->armor].slash_protection;
-    default: return 0;
+    case DAMAGE_TYPE_BLUNT:    protection += armor_item[target->encounterable->armor].blunt_protection;
+    case DAMAGE_TYPE_PIERCING: protection += armor_item[target->encounterable->armor].piercing_protection;
+    case DAMAGE_TYPE_STAB:     protection += armor_item[target->encounterable->armor].stab_protection;
+    case DAMAGE_TYPE_SLASH:    protection += armor_item[target->encounterable->armor].slash_protection;
     }
+
+    if (target->is_defending) {
+        protection += weapon_item[target->encounterable->weapon].damage;
+    }
+
+    return protection;
+}
+
+uint16_t calculate_expected_damage(EncounterEntity* attacker, EncounterEntity* target, uint8_t attack) {
+    WeaponItem* weapon = &weapon_item[attacker->encounterable->weapon];
+
+    uint16_t base_damage = get_base_damage(attacker);
+    uint16_t weapon_damage = get_weapon_damage(attacker, weapon);
+    uint8_t enemy_protection = get_enemy_protection(attacker, target, weapon->attacks[attack].type);
+
+    uint16_t damage = (base_damage + weapon_damage) * weapon->attacks[attack].power / 256;
+
+    damage *= 255 - enemy_protection;
+    damage /= 255;
+
+    damage = MAX(damage, 1);
+
+    return damage;
 }
 
 Damage calculate_damage(EncounterEntity* attacker, EncounterEntity* target, uint8_t attack) {
